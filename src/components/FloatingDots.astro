@@ -1,0 +1,53 @@
+---
+// FloatingDots.astro - The animated dots that persist throughout the page
+---
+
+<div id="dots-container" class="fixed inset-0 pointer-events-none z-10">
+  <!-- Main dots -->
+  <div
+    id="dot1"
+    class="absolute rounded-full will-change-transform"
+    style="width: 20px; height: 20px; background: #171717;"
+  ></div>
+  <div
+    id="dot2"
+    class="absolute rounded-full will-change-transform"
+    style="width: 20px; height: 20px; background: #171717;"
+  ></div>
+
+  <!-- Container for satellite dots (Design section) -->
+  <div id="satellites-container" class="absolute inset-0"></div>
+
+  <!-- Container for emerged dots (Maintain section) -->
+  <div id="emerged-container" class="absolute inset-0"></div>
+</div>
+
+<script>
+  import { initDotsAnimation } from '../scripts/dots-animation';
+
+  // Initialize animation when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    initDotsAnimation();
+  });
+
+  // Also handle Astro's view transitions
+  document.addEventListener('astro:page-load', () => {
+    initDotsAnimation();
+  });
+</script>
+
+<style>
+  #dot1,
+  #dot2 {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .satellite-dot {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+
+  .emerged-dot {
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+  }
+</style>

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'Geist';
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Geist';
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/Geist-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Geist';
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/Geist-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Geist';
+    src: url('https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/Geist-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-itsees-bg text-itsees-dark font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    @apply bg-itsees-blue text-white;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-6 lg:px-8;
+  }
+
+  .process-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg;
+  }
+
+  .service-card {
+    @apply bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300;
+  }
+}
+
+/* Smooth scrolling for the entire document */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #171717;
+  border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}

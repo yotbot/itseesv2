@@ -1,0 +1,53 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FloatingDots from '../components/FloatingDots.astro';
+import HeroSection from '../components/HeroSection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import ProcessSection from '../components/ProcessSection.astro';
+---
+
+<Layout title="itsees | Full-Service Web Development">
+  <!-- Floating dots that animate throughout the page -->
+  <FloatingDots />
+
+  <!-- Main content sections -->
+  <main>
+    <HeroSection />
+    <AboutSection />
+    <ProcessSection />
+
+    <!-- Footer / Contact Section -->
+    <footer id="contact" class="relative min-h-[50vh] bg-itsees-dark flex items-center justify-center py-20">
+      <div class="section-container text-center relative z-20">
+        <h2 class="text-4xl md:text-6xl font-bold text-itsees-bg mb-6">
+          Ready to build something?
+        </h2>
+        <p class="text-xl text-itsees-bg/70 mb-8 max-w-xl mx-auto">
+          Let's turn your vision into reality. Reach out and let's start the conversation.
+        </p>
+        <a
+          href="mailto:hello@itsees.dev"
+          class="inline-flex items-center gap-2 px-8 py-4 bg-itsees-blue text-white rounded-full text-lg font-medium hover:bg-itsees-blue-light transition-colors duration-300"
+        >
+          Get in touch
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </a>
+
+        <div class="mt-20 pt-8 border-t border-itsees-bg/10">
+          <p class="text-itsees-bg/40 text-sm">
+            &copy; {new Date().getFullYear()} itsees. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </main>
+</Layout>
+
+<style>
+  /* Ensure proper scroll height for animations */
+  main {
+    min-height: 500vh;
+  }
+</style>

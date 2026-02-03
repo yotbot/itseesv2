@@ -1,0 +1,101 @@
+---
+// HeroSection.astro - Large centered "itsees" logo with dots as eyes
+---
+
+<section id="hero" class="relative min-h-screen flex items-center justify-center bg-itsees-dark">
+  <div class="hero-content relative z-20">
+    <!-- itsees SVG logo with spaces for the dots to act as eyes -->
+    <svg
+      id="logo-svg"
+      viewBox="0 0 400 100"
+      class="w-[80vw] max-w-4xl h-auto"
+      aria-label="itsees"
+    >
+      <defs>
+        <style>
+          .logo-text {
+            font-family: 'Geist', system-ui, sans-serif;
+            font-weight: 700;
+            font-size: 72px;
+            fill: #f5f5f0;
+          }
+        </style>
+      </defs>
+      <!-- The text "itsees" - the e's have holes for the dots -->
+      <text x="50%" y="70" text-anchor="middle" class="logo-text">
+        its<tspan class="e-letter">e</tspan><tspan class="e-letter">e</tspan>s
+      </text>
+    </svg>
+
+    <!-- Tagline -->
+    <p class="hero-tagline text-itsees-bg/70 text-lg md:text-xl text-center mt-8 opacity-0">
+      We see what others miss
+    </p>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-bg/50">
+    <span class="text-sm tracking-wider uppercase">Scroll</span>
+    <div class="w-px h-12 bg-gradient-to-b from-itsees-bg/50 to-transparent animate-pulse"></div>
+  </div>
+</section>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Fade in tagline
+    gsap.to('.hero-tagline', {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      delay: 0.5,
+      ease: 'power2.out',
+    });
+
+    // Fade out hero content on scroll
+    gsap.to('.hero-content', {
+      opacity: 0,
+      y: -50,
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: '50% top',
+        scrub: 1,
+      },
+    });
+
+    // Fade out scroll indicator quickly
+    gsap.to('.absolute.bottom-8', {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: '#hero',
+        start: '10% top',
+        end: '20% top',
+        scrub: 1,
+      },
+    });
+  });
+</script>
+
+<style>
+  .hero-tagline {
+    transform: translateY(10px);
+  }
+
+  .e-letter {
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+</style>

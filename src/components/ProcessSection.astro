@@ -1,0 +1,140 @@
+---
+// ProcessSection.astro - 5 stages with alternating left/right layout
+const stages = [
+  {
+    id: 'concept',
+    number: '01',
+    title: 'Concept',
+    description: 'We explore your vision together',
+    details: 'Every great project starts with understanding. We dive deep into your goals, audience, and aspirations to craft a clear roadmap for success.',
+    align: 'left',
+  },
+  {
+    id: 'design',
+    number: '02',
+    title: 'Design',
+    description: 'Ideas take shape, excitement builds',
+    details: 'Wireframes become mockups, mockups become prototypes. We iterate with you until every pixel feels right and the experience flows naturally.',
+    align: 'right',
+  },
+  {
+    id: 'build',
+    number: '03',
+    title: 'Build',
+    description: 'Technical craft meets creative vision',
+    details: 'Our engineers bring designs to life with clean, performant code. We use modern frameworks and best practices to ensure your site is fast, accessible, and maintainable.',
+    align: 'left',
+  },
+  {
+    id: 'host',
+    number: '04',
+    title: 'Host',
+    description: 'Launch with confidence and speed',
+    details: 'We deploy to battle-tested infrastructure with global CDN, automatic scaling, and rock-solid security. Your site loads fast from anywhere in the world.',
+    align: 'right',
+  },
+  {
+    id: 'maintain',
+    number: '05',
+    title: 'Maintain',
+    description: 'Ongoing support, reliable partnership',
+    details: 'Launch is just the beginning. We monitor, optimize, and evolve your digital presence as your business grows. You have a dedicated team in your corner.',
+    align: 'left',
+  },
+];
+---
+
+<section id="process" class="relative bg-itsees-blue">
+  {stages.map((stage, index) => (
+    <div
+      id={`stage-${stage.id}`}
+      class={`stage-section min-h-[80vh] flex items-center py-20 ${index === stages.length - 1 ? 'bg-itsees-blue-light' : ''}`}
+      data-stage={stage.id}
+    >
+      <div class="section-container relative z-20">
+        <div class={`grid grid-cols-12 gap-8 items-center ${stage.align === 'right' ? 'direction-rtl' : ''}`}>
+          <!-- Content side (7 columns) -->
+          <div class={`col-span-12 lg:col-span-7 ${stage.align === 'right' ? 'lg:col-start-6' : ''}`}>
+            <div class="process-card stage-card">
+              <div class="flex items-baseline gap-4 mb-4">
+                <span class="text-6xl md:text-8xl font-bold text-itsees-blue/20">
+                  {stage.number}
+                </span>
+                <h3 class="text-3xl md:text-5xl font-bold text-itsees-dark">
+                  {stage.title}
+                </h3>
+              </div>
+              <p class="text-2xl md:text-3xl text-itsees-dark/80 mb-4 font-medium">
+                {stage.description}
+              </p>
+              <p class="text-lg text-itsees-dark/60 leading-relaxed">
+                {stage.details}
+              </p>
+            </div>
+          </div>
+
+          <!-- Empty side for dots animation (5 columns) -->
+          <div class={`hidden lg:block col-span-5 ${stage.align === 'right' ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
+            <!-- Space for animated dots -->
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</section>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animate each stage card on scroll
+    gsap.utils.toArray('.stage-card').forEach((card, index) => {
+      gsap.from(card as Element, {
+        opacity: 0,
+        x: index % 2 === 0 ? -50 : 50,
+        scrollTrigger: {
+          trigger: card as Element,
+          start: 'top 80%',
+          end: 'top 50%',
+          scrub: 1,
+        },
+      });
+    });
+
+    // Animate the transition to lighter blue for maintain section
+    gsap.to('#stage-maintain', {
+      backgroundColor: '#60a5fa',
+      scrollTrigger: {
+        trigger: '#stage-maintain',
+        start: 'top center',
+        end: 'center center',
+        scrub: 1,
+      },
+    });
+  });
+</script>
+
+<style>
+  .direction-rtl {
+    direction: rtl;
+  }
+
+  .direction-rtl > * {
+    direction: ltr;
+  }
+
+  .stage-section {
+    transition: background-color 0.5s ease;
+  }
+
+  #stage-maintain {
+    background-color: #3b82f6;
+  }
+
+  .process-card {
+    @apply bg-white/90 backdrop-blur-sm;
+  }
+</style>
