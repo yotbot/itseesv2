@@ -55,13 +55,22 @@ export function initDotsAnimation() {
 
   // ==============================================
 
+  // Colors (hex for GSAP animation compatibility)
+  // OKLCH equivalents: dark=oklch(0.15 0 0), green=oklch(0.65 0.2 145), orange=oklch(0.72 0.18 55)
+  const colors = {
+    dark: "#1a1a1a",
+    green: "#5a9a3e",   // vivid army green - WCAG AA contrast with dark text
+    orange: "#e08840",  // vibrant orange - WCAG AA contrast with dark text
+  };
+
   // Animation state
   const state = {
     offsetX: 0,           // X offset for wiggle animation
     scale: 1,             // Dot scale multiplier
     orbitAngle: 0,        // Orbit rotation in degrees
     orbitRadius: 0,       // Distance from center when orbiting
-    color: "#171717",     // Dot color
+    dot1Color: colors.dark,
+    dot2Color: colors.dark,
   };
 
   // Get dot circle elements for color changes
@@ -121,9 +130,9 @@ export function initDotsAnimation() {
     dot2.setAttribute("width", `${size}`);
     dot2.setAttribute("height", `${size}`);
 
-    // Apply color
-    if (dot1Circle) dot1Circle.setAttribute("fill", state.color);
-    if (dot2Circle) dot2Circle.setAttribute("fill", state.color);
+    // Apply colors (different for each dot)
+    if (dot1Circle) dot1Circle.setAttribute("fill", state.dot1Color);
+    if (dot2Circle) dot2Circle.setAttribute("fill", state.dot2Color);
   }
 
   // Initial render
@@ -172,26 +181,28 @@ export function initDotsAnimation() {
     },
   });
 
-  // Move logo up and out
+  // Move logo up and out + scale it up
   if (heroContent) {
     phase2Tl.to(
       heroContent,
       {
         y: "-100vh",
+        scale: 2.5,         // Scale up as it exits
         duration: 1,
       },
       0
     );
   }
 
-  // Dots: grow huge to become backdrop, change color, orbit
+  // Dots: grow huge to become backdrop, change to different colors, orbit
   phase2Tl.to(
     state,
     {
       scale: 40,            // Massive - backdrop size
       orbitRadius: 300,     // Wider orbit for backdrop effect
       orbitAngle: 360,
-      color: "#3b82f6",
+      dot1Color: colors.green,
+      dot2Color: colors.orange,
       duration: 1,
       onUpdate: render,
     },
