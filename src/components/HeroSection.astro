@@ -2,7 +2,7 @@
 // HeroSection.astro - Large centered "itsees" logo with dots as eyes
 ---
 
-<section id="hero" class="relative min-h-screen flex items-center justify-center bg-itsees-dark">
+<section id="hero" class="relative min-h-screen flex items-center justify-center bg-itsees-bg">
   <div class="hero-content relative z-20">
     <!-- itsees SVG logo with spaces for the dots to act as eyes -->
     <svg
@@ -17,7 +17,7 @@
             font-family: 'Geist', system-ui, sans-serif;
             font-weight: 700;
             font-size: 72px;
-            fill: #f5f5f0;
+            fill: #171717;
           }
         </style>
       </defs>
@@ -28,15 +28,15 @@
     </svg>
 
     <!-- Tagline -->
-    <p class="hero-tagline text-itsees-bg/70 text-lg md:text-xl text-center mt-8 opacity-0">
+    <p class="hero-tagline text-itsees-dark/70 text-lg md:text-xl text-center mt-8 opacity-0">
       We see what others miss
     </p>
   </div>
 
   <!-- Scroll indicator -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-bg/50">
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-dark/50">
     <span class="text-sm tracking-wider uppercase">Scroll</span>
-    <div class="w-px h-12 bg-gradient-to-b from-itsees-bg/50 to-transparent animate-pulse"></div>
+    <div class="w-px h-12 bg-gradient-to-b from-itsees-dark/50 to-transparent animate-pulse"></div>
   </div>
 </section>
 
@@ -88,14 +88,5 @@
 
   .e-letter {
     letter-spacing: 0.05em;
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
   }
 </style>
