@@ -57,36 +57,62 @@ export function initDotsAnimation() {
 
   // Animation state
   const state = {
-    offsetX: 0, // Additional X offset for animation
+    offsetX: 0,           // X offset for wiggle animation
+    scale: 1,             // Dot scale multiplier
+    orbitAngle: 0,        // Orbit rotation in degrees
+    orbitRadius: 0,       // Distance from center when orbiting
+    color: "#171717",     // Dot color
   };
 
+  // Get dot circle elements for color changes
+  const dot1Circle = dot1.querySelector("circle");
+  const dot2Circle = dot2.querySelector("circle");
+
   function render() {
-    let centerX: number;
-    let centerY: number;
-    let logoWidth: number;
-    let logoHeight: number;
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+
+    // Always get logo position (even if it's moving)
+    let logoX = viewportCenterX;
+    let logoY = viewportCenterY;
+    let logoWidth = 400;
+    let logoHeight = 100;
 
     if (logo) {
       const logoRect = logo.getBoundingClientRect();
-      centerX = logoRect.left + logoRect.width / 2;
-      centerY = logoRect.top + logoRect.height / 2;
+      logoX = logoRect.left + logoRect.width / 2;
+      logoY = logoRect.top + logoRect.height / 2;
       logoWidth = logoRect.width;
       logoHeight = logoRect.height;
-    } else {
-      centerX = window.innerWidth / 2;
-      centerY = window.innerHeight / 2;
-      logoWidth = 400;
-      logoHeight = 100;
     }
 
-    // Calculate positions relative to logo + animation offset
-    const x1 = centerX + logoWidth * config.dot1XPercent + state.offsetX;
-    const y1 = centerY + logoHeight * config.dot1YPercent;
-    const x2 = centerX + logoWidth * config.dot2XPercent + state.offsetX;
-    const y2 = centerY + logoHeight * config.dot2YPercent;
+    // Calculate logo-relative positions (where dots would be on the logo)
+    const logoX1 = logoX + logoWidth * config.dot1XPercent + state.offsetX;
+    const logoY1 = logoY + logoHeight * config.dot1YPercent;
+    const logoX2 = logoX + logoWidth * config.dot2XPercent + state.offsetX;
+    const logoY2 = logoY + logoHeight * config.dot2YPercent;
 
-    const size = config.dotSize;
+    // Calculate orbit positions (around viewport center)
+    const angle1 = (state.orbitAngle * Math.PI) / 180;
+    const angle2 = angle1 + Math.PI;
+    const orbitX1 = viewportCenterX + Math.cos(angle1) * state.orbitRadius;
+    const orbitY1 = viewportCenterY + Math.sin(angle1) * state.orbitRadius;
+    const orbitX2 = viewportCenterX + Math.cos(angle2) * state.orbitRadius;
+    const orbitY2 = viewportCenterY + Math.sin(angle2) * state.orbitRadius;
 
+    // Blend between logo position and orbit position based on orbitRadius
+    // When orbitRadius is 0, use logo positions; as it increases, transition to orbit
+    const maxOrbitForBlend = 100; // Full orbit mode at this radius
+    const blendFactor = Math.min(state.orbitRadius / maxOrbitForBlend, 1);
+
+    const x1 = logoX1 + (orbitX1 - logoX1) * blendFactor;
+    const y1 = logoY1 + (orbitY1 - logoY1) * blendFactor;
+    const x2 = logoX2 + (orbitX2 - logoX2) * blendFactor;
+    const y2 = logoY2 + (orbitY2 - logoY2) * blendFactor;
+
+    const size = config.dotSize * state.scale;
+
+    // Apply transforms
     dot1.style.transform = `translate(${x1 - size / 2}px, ${y1 - size / 2}px)`;
     dot1.setAttribute("width", `${size}`);
     dot1.setAttribute("height", `${size}`);
@@ -94,6 +120,10 @@ export function initDotsAnimation() {
     dot2.style.transform = `translate(${x2 - size / 2}px, ${y2 - size / 2}px)`;
     dot2.setAttribute("width", `${size}`);
     dot2.setAttribute("height", `${size}`);
+
+    // Apply color
+    if (dot1Circle) dot1Circle.setAttribute("fill", state.color);
+    if (dot2Circle) dot2Circle.setAttribute("fill", state.color);
   }
 
   // Initial render
@@ -126,6 +156,47 @@ export function initDotsAnimation() {
     duration: 0.1, // 10% of scroll to return (faster)
     onUpdate: render,
   });
+
+  // ==============================================
+  // PHASE 2: Logo exits, dots grow and orbit (50-100%)
+  // ==============================================
+
+  const heroContent = document.querySelector(".hero-content") as HTMLElement;
+
+  const phase2Tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#hero",
+      start: "50% top",
+      end: "bottom top",
+      scrub: 1,
+    },
+  });
+
+  // Move logo up and out
+  if (heroContent) {
+    phase2Tl.to(
+      heroContent,
+      {
+        y: "-100vh",
+        duration: 1,
+      },
+      0
+    );
+  }
+
+  // Dots: grow huge to become backdrop, change color, orbit
+  phase2Tl.to(
+    state,
+    {
+      scale: 40,            // Massive - backdrop size
+      orbitRadius: 300,     // Wider orbit for backdrop effect
+      orbitAngle: 360,
+      color: "#3b82f6",
+      duration: 1,
+      onUpdate: render,
+    },
+    0
+  );
 
   // Handle resize
   resizeHandler = () => {
