@@ -55,7 +55,12 @@ export function initDotsAnimation() {
 
   // ==============================================
 
-  function positionDots() {
+  // Animation state
+  const state = {
+    offsetX: 0, // Additional X offset for animation
+  };
+
+  function render() {
     let centerX: number;
     let centerY: number;
     let logoWidth: number;
@@ -68,38 +73,64 @@ export function initDotsAnimation() {
       logoWidth = logoRect.width;
       logoHeight = logoRect.height;
     } else {
-      // Fallback to viewport center
       centerX = window.innerWidth / 2;
       centerY = window.innerHeight / 2;
       logoWidth = 400;
       logoHeight = 100;
     }
 
-    // Calculate positions relative to logo
-    const x1 = centerX + logoWidth * config.dot1XPercent;
+    // Calculate positions relative to logo + animation offset
+    const x1 = centerX + logoWidth * config.dot1XPercent + state.offsetX;
     const y1 = centerY + logoHeight * config.dot1YPercent;
-    const x2 = centerX + logoWidth * config.dot2XPercent;
+    const x2 = centerX + logoWidth * config.dot2XPercent + state.offsetX;
     const y2 = centerY + logoHeight * config.dot2YPercent;
 
     const size = config.dotSize;
 
-    // Position dot 1
     dot1.style.transform = `translate(${x1 - size / 2}px, ${y1 - size / 2}px)`;
     dot1.setAttribute("width", `${size}`);
     dot1.setAttribute("height", `${size}`);
 
-    // Position dot 2
     dot2.style.transform = `translate(${x2 - size / 2}px, ${y2 - size / 2}px)`;
     dot2.setAttribute("width", `${size}`);
     dot2.setAttribute("height", `${size}`);
   }
 
-  // Initial positioning
-  positionDots();
+  // Initial render
+  render();
+
+  // ==============================================
+  // SCROLL ANIMATIONS
+  // ==============================================
+
+  // Hero section: dots shift right then back
+  const heroTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#hero",
+      start: "top top",
+      end: "25% top",        // Animation completes at 25% of hero scroll
+      scrub: 1,
+    },
+  });
+
+  // Move right
+  heroTl.to(state, {
+    offsetX: 30,
+    duration: 0.1, // 15% of scroll to reach right
+    onUpdate: render,
+  });
+
+  // Move back
+  heroTl.to(state, {
+    offsetX: 0,
+    duration: 0.1, // 10% of scroll to return (faster)
+    onUpdate: render,
+  });
 
   // Handle resize
   resizeHandler = () => {
-    positionDots();
+    render();
+    ScrollTrigger.refresh();
   };
   window.addEventListener("resize", resizeHandler);
 }
