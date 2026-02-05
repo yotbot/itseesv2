@@ -692,65 +692,59 @@ export function initDotsAnimation() {
     },
   });
 
-  // Duration ratios (total = 1.0):
-  // 0.00 - 0.08: grow + change colors + start orbit
-  // 0.08 - 0.15: continue growing, orbit expands
-  // 0.15 - 0.22: scale down, orbit shrinks, blend to ellipse
-  // 0.22 - 1.00: ellipse orbit continues
+  // Organic, overlapping transitions - everything blends gradually
+  // No hard phases, just continuous transformation
 
   // === Colors (quick transition at start) ===
-  masterTl.to(dot1, { color: colors.green, duration: 0.05, onUpdate: render }, 0);
-  masterTl.to(dot2, { color: colors.orange, duration: 0.05, onUpdate: render }, 0);
+  masterTl.to(dot1, { color: colors.green, duration: 0.06, onUpdate: render }, 0);
+  masterTl.to(dot2, { color: colors.orange, duration: 0.06, onUpdate: render }, 0);
 
-  // === Scale: ramp up, then down ===
-  // Grow during about section
-  masterTl.to(dot1, { scale: 40, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
-  masterTl.to(dot2, { scale: 60, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
-  // Shrink during process transition
-  masterTl.to(dot1, { scale: 3, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
-  masterTl.to(dot2, { scale: 3, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
+  // === Scale: gradual arc - grows then shrinks with long overlap ===
+  masterTl.to(dot1, { scale: 40, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
+  masterTl.to(dot2, { scale: 60, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
+  // Start shrinking while still large, long gradual decrease
+  masterTl.to(dot1, { scale: 3, duration: 0.15, ease: "power1.inOut", onUpdate: render }, 0.08);
+  masterTl.to(dot2, { scale: 3, duration: 0.15, ease: "power1.inOut", onUpdate: render }, 0.08);
 
-  // === Orbit radius: expand then contract ===
-  masterTl.to(globalState, { orbitRadius: 700, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
-  masterTl.to(globalState, { orbitRadius: 0, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
+  // === Orbit radius: expand then gradually contract ===
+  masterTl.to(globalState, { orbitRadius: 700, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
+  masterTl.to(globalState, { orbitRadius: 0, duration: 0.18, ease: "power1.inOut", onUpdate: render }, 0.08);
 
-  // === Orbit angle: continuous rotation throughout ===
-  // Starts at 0, keeps going - never stops
-  masterTl.to(globalState, { orbitAngle: 720, duration: 0.22, ease: "none", onUpdate: render }, 0);
+  // === Global orbit angle: continuous, extends into ellipse phase ===
+  masterTl.to(globalState, { orbitAngle: 900, duration: 0.28, ease: "none", onUpdate: render }, 0);
 
-  // === Ellipse blend: 0 until process, then ramp up ===
+  // === Ellipse blend: starts early, very gradual transition ===
   masterTl.to(
     { value: 0 },
     {
       value: 1,
-      duration: 0.08,
-      ease: "power2.inOut",
+      duration: 0.18, // Long, gradual blend
+      ease: "power1.inOut",
       onUpdate: function () {
         ellipseBlend = this.targets()[0].value;
         render();
       },
     },
-    0.14,
+    0.06, // Start early - both orbits active together for a while
   );
 
-  // === Ellipse orbit: continues from where global orbit left off ===
-  // Sync the starting angle with where global orbit ends
+  // === Ellipse orbit: starts very early, always in motion ===
   masterTl.to(
     ellipseOrbit,
     {
-      angle: 5400, // Many rotations
-      duration: 0.78, // Rest of the timeline
+      angle: 5400,
+      duration: 0.94, // Almost the entire timeline
       ease: "none",
       onUpdate: render,
     },
-    0.22,
+    0.06, // Starts with blend - both orbits spinning together
   );
 
-  // === Breathing size changes during ellipse phase ===
-  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.2, onUpdate: render }, 0.22);
-  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.2, onUpdate: render }, 0.42);
-  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.2, onUpdate: render }, 0.62);
-  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.18, onUpdate: render }, 0.82);
+  // === Breathing size changes - organic pulsing ===
+  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.2, onUpdate: render }, 0.25);
+  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.2, onUpdate: render }, 0.45);
+  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.2, onUpdate: render }, 0.65);
+  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.15, onUpdate: render }, 0.85);
 
   // ==============================================
   // RESIZE HANDLER
