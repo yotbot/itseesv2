@@ -206,16 +206,24 @@ function render() {
 
     if (dot1 && dot2) {
       const angle1Rad = (ellipseOrbit.angle * Math.PI) / 180;
-      const angle2Rad = angle1Rad + Math.PI;
+
+      // Phase drift: dots aren't locked at exactly 180° apart
+      // This creates organic "chasing" behavior - sometimes closer, sometimes farther
+      // Oscillates ±25° around the 180° base offset, changing slowly
+      const phaseDrift = Math.sin(ellipseOrbit.angle * 0.05 * Math.PI / 180) * 25 * Math.PI / 180;
+      const angle2Rad = angle1Rad + Math.PI + phaseDrift;
+
+      // Dot2 also has slightly different orbit size for variety
+      const radiusVariation = 1 + Math.sin(ellipseOrbit.angle * 0.03 * Math.PI / 180) * 0.15;
 
       const x1 =
         ellipseOrbit.centerX + Math.cos(angle1Rad) * ellipseOrbit.radiusX;
       const y1 =
         ellipseOrbit.centerY + Math.sin(angle1Rad) * ellipseOrbit.radiusY;
       const x2 =
-        ellipseOrbit.centerX + Math.cos(angle2Rad) * ellipseOrbit.radiusX;
+        ellipseOrbit.centerX + Math.cos(angle2Rad) * ellipseOrbit.radiusX * radiusVariation;
       const y2 =
-        ellipseOrbit.centerY + Math.sin(angle2Rad) * ellipseOrbit.radiusY;
+        ellipseOrbit.centerY + Math.sin(angle2Rad) * ellipseOrbit.radiusY * radiusVariation;
 
       // Depth factor for 3D effect
       const depth1 = 1 + Math.sin(angle1Rad) * ellipseOrbit.depthScale * ellipseBlend;
@@ -325,8 +333,14 @@ function getRenderedPosition(
   const logoRelX = logoX + logoWidth * dot.baseXPercent + dot.offsetX;
   const logoRelY = logoY + logoHeight * dot.baseYPercent + dot.offsetY;
 
+  // Phase drift for global orbit - dots aren't perfectly opposite
+  // dot1 (orbitAngle=180) gets a subtle drift based on current angle
+  const driftAmount = dot.orbitAngle > 0
+    ? Math.sin(globalState.orbitAngle * 0.08 * Math.PI / 180) * 20
+    : 0;
+
   // Global orbit position (around viewport center)
-  const angle = ((globalState.orbitAngle + dot.orbitAngle) * Math.PI) / 180;
+  const angle = ((globalState.orbitAngle + dot.orbitAngle + driftAmount) * Math.PI) / 180;
   const orbitX = viewportCenterX + Math.cos(angle) * globalState.orbitRadius;
   const orbitY = viewportCenterY + Math.sin(angle) * globalState.orbitRadius;
 
@@ -617,14 +631,14 @@ export function initDotsAnimation() {
     element: dot1Element,
     baseXPercent: -0.02,
     baseYPercent: -0.05,
-    orbitAngle: 0, // Will be at angle 0 in orbit
+    orbitAngle: 180, // Left side in orbit (matches starting position)
   });
 
   const dot2 = createDot("dot2", {
     element: dot2Element,
     baseXPercent: 0.1,
     baseYPercent: -0.05,
-    orbitAngle: 180, // Opposite side in orbit
+    orbitAngle: 0, // Right side in orbit (matches starting position)
   });
 
   // Initial render
@@ -634,117 +648,90 @@ export function initDotsAnimation() {
   // SCROLL ANIMATIONS
   // ==============================================
 
-  // Hero section: dots shift right then back
-  const heroTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#hero",
-      start: "top top",
-      end: "25% top",
-      scrub: 1,
-    },
-  });
-
-  // Move both dots right (animate their offsetX)
-  heroTl.to([dot1, dot2], {
-    offsetX: 30,
-    duration: 0.1,
-    onUpdate: render,
-  });
-
-  // Move back
-  heroTl.to([dot1, dot2], {
-    offsetX: 0,
-    duration: 0.1,
-    onUpdate: render,
-  });
-
   // ==============================================
-  // PHASE 2: One continuous animation from hero exit to footer
-  // Dots grow, orbit, shrink, all in one fluid motion
+  // SINGLE CONTINUOUS TIMELINE: Hero through Footer
+  // Wiggle flows into orbit flows into ellipse - no stops
   // ==============================================
 
   const heroContent = document.querySelector(".hero-content") as HTMLElement;
   const footer = document.getElementById("contact");
 
-  // Logo exit animation (separate, just for the logo element)
-  if (heroContent) {
-    gsap.to(heroContent, {
-      y: "-100vh",
-      scale: 3.5,
-      scrollTrigger: {
-        trigger: "#hero",
-        start: "50% top",
-        end: "bottom top",
-        scrub: 1,
-      },
-    });
-  }
-
-  // One master timeline: 50% hero → footer
-  // This creates one continuous, fluid motion
+  // One master timeline: top of hero → footer
+  // Everything is continuous - wiggle, explosion, orbit, ellipse all flow together
   const masterTl = gsap.timeline({
     scrollTrigger: {
       trigger: "#hero",
-      start: "50% top",
+      start: "top top",
       endTrigger: footer || "#process",
       end: "bottom bottom",
       scrub: 1,
     },
+    onUpdate: render, // Single render call per frame instead of per-animation
   });
 
-  // Organic, overlapping transitions - everything blends gradually
-  // No hard phases, just continuous transformation
+  // Timeline ratios (hero is ~200vh, about ~100vh, process ~750vh, footer ~50vh = ~1100vh total)
+  // Hero portion: 0 - 0.18 (200/1100)
+  // Wiggle: 0 - 0.044 (first 25% of hero)
+  // EXPLOSION at 0.044: logo scales up + dots scale up + orbit begins - all together!
 
-  // === Colors (quick transition at start) ===
-  masterTl.to(dot1, { color: colors.green, duration: 0.06, onUpdate: render }, 0);
-  masterTl.to(dot2, { color: colors.orange, duration: 0.06, onUpdate: render }, 0);
+  // === Wiggle phase (0 - 4.4% of timeline) ===
+  masterTl.to([dot1, dot2], { offsetX: 30, duration: 0.022 }, 0);
+  masterTl.to([dot1, dot2], { offsetX: 0, duration: 0.022 }, 0.022);
 
-  // === Scale: gradual arc - grows then shrinks with long overlap ===
-  masterTl.to(dot1, { scale: 40, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
-  masterTl.to(dot2, { scale: 60, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
-  // Start shrinking while still large, long gradual decrease
-  masterTl.to(dot1, { scale: 3, duration: 0.15, ease: "power1.inOut", onUpdate: render }, 0.08);
-  masterTl.to(dot2, { scale: 3, duration: 0.15, ease: "power1.inOut", onUpdate: render }, 0.08);
+  // === EXPLOSION: Everything happens together at 0.044 ===
+  // Colors start changing
+  masterTl.to(dot1, { color: colors.green, duration: 0.06 }, 0.044);
+  masterTl.to(dot2, { color: colors.orange, duration: 0.06 }, 0.044);
 
-  // === Orbit radius: expand then gradually contract ===
-  masterTl.to(globalState, { orbitRadius: 700, duration: 0.10, ease: "power2.out", onUpdate: render }, 0);
-  masterTl.to(globalState, { orbitRadius: 0, duration: 0.18, ease: "power1.inOut", onUpdate: render }, 0.08);
+  // Logo scales up and exits - synchronized with dots
+  if (heroContent) {
+    masterTl.to(heroContent, { scale: 3.5, y: "-100vh", duration: 0.10, ease: "power2.out" }, 0.044);
+  }
 
-  // === Global orbit angle: continuous, extends into ellipse phase ===
-  masterTl.to(globalState, { orbitAngle: 900, duration: 0.28, ease: "none", onUpdate: render }, 0);
+  // Dots scale up
+  masterTl.to(dot1, { scale: 40, duration: 0.08, ease: "power2.out" }, 0.044);
+  masterTl.to(dot2, { scale: 60, duration: 0.08, ease: "power2.out" }, 0.044);
 
-  // === Ellipse blend: starts early, very gradual transition ===
+  // Orbit radius and angle start TOGETHER - spiral outward while rotating
+  masterTl.to(globalState, { orbitRadius: 700, duration: 0.08, ease: "power2.out" }, 0.044);
+  masterTl.to(globalState, { orbitAngle: 360, duration: 0.16, ease: "power1.out" }, 0.044);
+
+  // === Scale down + orbit contracts (starts around process section) ===
+  masterTl.to(dot1, { scale: 3, duration: 0.12, ease: "power1.inOut" }, 0.10);
+  masterTl.to(dot2, { scale: 3, duration: 0.12, ease: "power1.inOut" }, 0.10);
+  masterTl.to(globalState, { orbitRadius: 0, duration: 0.14, ease: "power1.inOut" }, 0.10);
+
+  // === Ellipse blend: overlaps with orbit contraction ===
   masterTl.to(
     { value: 0 },
     {
       value: 1,
-      duration: 0.18, // Long, gradual blend
+      duration: 0.14,
       ease: "power1.inOut",
       onUpdate: function () {
         ellipseBlend = this.targets()[0].value;
-        render();
+        // render() handled by timeline-level onUpdate
       },
     },
-    0.06, // Start early - both orbits active together for a while
+    0.10,
   );
 
-  // === Ellipse orbit: starts very early, always in motion ===
+  // === Ellipse orbit: starts with blend, continuous through footer ===
   masterTl.to(
     ellipseOrbit,
     {
       angle: 5400,
-      duration: 0.94, // Almost the entire timeline
+      duration: 0.76,
       ease: "none",
-      onUpdate: render,
     },
-    0.06, // Starts with blend - both orbits spinning together
+    0.10,
   );
 
   // === Breathing size changes - organic pulsing ===
-  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.2, onUpdate: render }, 0.25);
-  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.2, onUpdate: render }, 0.45);
-  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.2, onUpdate: render }, 0.65);
-  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.15, onUpdate: render }, 0.85);
+  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.18 }, 0.25);
+  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.18 }, 0.43);
+  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.18 }, 0.61);
+  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.18 }, 0.79);
 
   // ==============================================
   // RESIZE HANDLER
