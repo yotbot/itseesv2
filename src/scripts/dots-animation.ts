@@ -659,13 +659,14 @@ export function initDotsAnimation() {
   });
 
   // ==============================================
-  // PHASE 2: Logo exits, dots grow and orbit
-  // Continues through About section (no gap!)
+  // PHASE 2: One continuous animation from hero exit to footer
+  // Dots grow, orbit, shrink, all in one fluid motion
   // ==============================================
 
   const heroContent = document.querySelector(".hero-content") as HTMLElement;
+  const footer = document.getElementById("contact");
 
-  // Logo exit animation (just for the logo element)
+  // Logo exit animation (separate, just for the logo element)
   if (heroContent) {
     gsap.to(heroContent, {
       y: "-100vh",
@@ -679,153 +680,77 @@ export function initDotsAnimation() {
     });
   }
 
-  // Dots grow + orbit - extends through About section to Process
-  const backdropTl = gsap.timeline({
+  // One master timeline: 50% hero → footer
+  // This creates one continuous, fluid motion
+  const masterTl = gsap.timeline({
     scrollTrigger: {
       trigger: "#hero",
       start: "50% top",
-      endTrigger: "#process",
-      end: "top bottom",
+      endTrigger: footer || "#process",
+      end: "bottom bottom",
       scrub: 1,
     },
   });
 
-  // Grow dots and change colors
-  backdropTl.to(
-    dot1,
+  // Duration ratios (total = 1.0):
+  // 0.00 - 0.08: grow + change colors + start orbit
+  // 0.08 - 0.15: continue growing, orbit expands
+  // 0.15 - 0.22: scale down, orbit shrinks, blend to ellipse
+  // 0.22 - 1.00: ellipse orbit continues
+
+  // === Colors (quick transition at start) ===
+  masterTl.to(dot1, { color: colors.green, duration: 0.05, onUpdate: render }, 0);
+  masterTl.to(dot2, { color: colors.orange, duration: 0.05, onUpdate: render }, 0);
+
+  // === Scale: ramp up, then down ===
+  // Grow during about section
+  masterTl.to(dot1, { scale: 40, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
+  masterTl.to(dot2, { scale: 60, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
+  // Shrink during process transition
+  masterTl.to(dot1, { scale: 3, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
+  masterTl.to(dot2, { scale: 3, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
+
+  // === Orbit radius: expand then contract ===
+  masterTl.to(globalState, { orbitRadius: 700, duration: 0.12, ease: "power2.out", onUpdate: render }, 0);
+  masterTl.to(globalState, { orbitRadius: 0, duration: 0.08, ease: "power2.inOut", onUpdate: render }, 0.14);
+
+  // === Orbit angle: continuous rotation throughout ===
+  // Starts at 0, keeps going - never stops
+  masterTl.to(globalState, { orbitAngle: 720, duration: 0.22, ease: "none", onUpdate: render }, 0);
+
+  // === Ellipse blend: 0 until process, then ramp up ===
+  masterTl.to(
+    { value: 0 },
     {
-      scale: 40,
-      color: colors.green,
-      duration: 0.5,
-      onUpdate: render,
+      value: 1,
+      duration: 0.08,
+      ease: "power2.inOut",
+      onUpdate: function () {
+        ellipseBlend = this.targets()[0].value;
+        render();
+      },
     },
-    0,
+    0.14,
   );
 
-  backdropTl.to(
-    dot2,
+  // === Ellipse orbit: continues from where global orbit left off ===
+  // Sync the starting angle with where global orbit ends
+  masterTl.to(
+    ellipseOrbit,
     {
-      scale: 60,
-      color: colors.orange,
-      duration: 0.5,
+      angle: 5400, // Many rotations
+      duration: 0.78, // Rest of the timeline
+      ease: "none",
       onUpdate: render,
     },
-    0,
+    0.22,
   );
 
-  // Orbit expands then continues rotating through About
-  backdropTl.to(
-    globalState,
-    {
-      orbitRadius: 700,
-      orbitAngle: 180,
-      duration: 0.5,
-      onUpdate: render,
-    },
-    0,
-  );
-
-  // Continue rotating through About section (keeps it alive)
-  backdropTl.to(
-    globalState,
-    {
-      orbitAngle: 360,
-      duration: 0.5,
-      onUpdate: render,
-    },
-    0.5,
-  );
-
-  // ==============================================
-  // PHASE 3: Process Section through Footer
-  // Scale down + transition to ellipse orbit
-  // ==============================================
-
-  const processSection = document.getElementById("process");
-  const footer = document.getElementById("contact");
-
-  if (processSection) {
-    // Transition: scale down + blend into ellipse orbit
-    const transitionTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#process",
-        start: "top bottom",
-        end: "top 30%",
-        scrub: 1,
-      },
-    });
-
-    // Scale down dots
-    transitionTl.to(
-      [dot1, dot2],
-      {
-        scale: 3,
-        duration: 1,
-        onUpdate: render,
-      },
-      0,
-    );
-
-    // Reduce global orbit while continuing rotation
-    transitionTl.to(
-      globalState,
-      {
-        orbitRadius: 0,
-        orbitAngle: 450,
-        duration: 1,
-        onUpdate: render,
-      },
-      0,
-    );
-
-    // Blend into ellipse orbit (0 → 1)
-    transitionTl.to(
-      { value: 0 },
-      {
-        value: 1,
-        duration: 1,
-        onUpdate: function () {
-          ellipseBlend = this.targets()[0].value;
-          render();
-        },
-      },
-      0,
-    );
-
-    // ==============================================
-    // Continuous ellipse orbit through to footer
-    // ==============================================
-
-    const endTrigger = footer || processSection;
-
-    const ellipseTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#process",
-        start: "top 30%",
-        endTrigger: endTrigger,
-        end: "bottom bottom",
-        scrub: 1,
-      },
-    });
-
-    // Continuous rotation (15 full rotations = 5400°)
-    ellipseTl.to(
-      ellipseOrbit,
-      {
-        angle: 5400,
-        duration: 1,
-        ease: "none",
-        onUpdate: render,
-      },
-      0,
-    );
-
-    // Breathing size changes
-    ellipseTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.25, onUpdate: render }, 0);
-    ellipseTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.25, onUpdate: render }, 0.25);
-    ellipseTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.25, onUpdate: render }, 0.5);
-    ellipseTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.25, onUpdate: render }, 0.75);
-  }
+  // === Breathing size changes during ellipse phase ===
+  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.2, onUpdate: render }, 0.22);
+  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.2, onUpdate: render }, 0.42);
+  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.2, onUpdate: render }, 0.62);
+  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.18, onUpdate: render }, 0.82);
 
   // ==============================================
   // RESIZE HANDLER
