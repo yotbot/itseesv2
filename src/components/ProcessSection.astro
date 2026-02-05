@@ -48,35 +48,25 @@ const stages = [
   {stages.map((stage, index) => (
     <div
       id={`stage-${stage.id}`}
-      class="stage-section min-h-[80vh] flex items-center py-20"
+      class="stage-section h-[150vh] pt-[30vh]"
       data-stage={stage.id}
     >
-      <div class="section-container relative z-20">
-        <div class={`grid grid-cols-12 gap-8 items-center ${stage.align === 'right' ? 'direction-rtl' : ''}`}>
-          <!-- Content side (7 columns) -->
-          <div class={`col-span-12 lg:col-span-7 ${stage.align === 'right' ? 'lg:col-start-6' : ''}`}>
-            <div class="process-card stage-card">
-              <div class="flex items-baseline gap-4 mb-4">
-                <span class="text-6xl md:text-8xl font-bold text-itsees-dark/20">
-                  {stage.number}
-                </span>
-                <h3 class="text-3xl md:text-5xl font-bold text-itsees-dark">
-                  {stage.title}
-                </h3>
-              </div>
-              <p class="text-2xl md:text-3xl text-itsees-dark/80 mb-4 font-medium">
-                {stage.description}
-              </p>
-              <p class="text-lg text-itsees-dark/60 leading-relaxed">
-                {stage.details}
-              </p>
-            </div>
+      <div class={`section-container h-full relative z-20 ${stage.align === 'right' ? 'flex justify-end' : ''}`}>
+        <div class="process-card stage-card sticky top-[30vh] h-fit max-w-2xl p-8">
+          <div class="flex items-baseline gap-4 mb-4">
+            <span class="text-6xl md:text-8xl font-bold text-itsees-dark/20">
+              {stage.number}
+            </span>
+            <h3 class="text-3xl md:text-5xl font-bold text-itsees-dark">
+              {stage.title}
+            </h3>
           </div>
-
-          <!-- Empty side for dots animation (5 columns) -->
-          <div class={`hidden lg:block col-span-5 ${stage.align === 'right' ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
-            <!-- Space for animated dots -->
-          </div>
+          <p class="text-2xl md:text-3xl text-itsees-dark/80 mb-4 font-medium">
+            {stage.description}
+          </p>
+          <p class="text-lg text-itsees-dark/60 leading-relaxed">
+            {stage.details}
+          </p>
         </div>
       </div>
     </div>
@@ -117,6 +107,6 @@ const stages = [
   }
 
   .process-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-sm;
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm;
   }
 </style>
