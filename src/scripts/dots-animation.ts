@@ -79,12 +79,13 @@ const globalState = {
 };
 
 // Elliptical orbit state (for "concept" phase depth effect)
+// Starts at radius 0 - will expand outward as it takes over from global orbit
 const ellipseOrbit: EllipseOrbitState = {
   active: false, // Will be removed - use blend instead
   centerX: 0,
   centerY: 0,
-  radiusX: 150,
-  radiusY: 60,
+  radiusX: 0, // Starts at 0, expands during transition
+  radiusY: 0, // Starts at 0, expands during transition
   depthScale: 0.4,
   angle: 0,
 };
@@ -210,24 +211,31 @@ function render() {
       // Phase drift: dots aren't locked at exactly 180° apart
       // This creates organic "chasing" behavior - sometimes closer, sometimes farther
       // Oscillates ±25° around the 180° base offset, changing slowly
-      const phaseDrift = Math.sin(ellipseOrbit.angle * 0.05 * Math.PI / 180) * 25 * Math.PI / 180;
+      const phaseDrift =
+        (Math.sin((ellipseOrbit.angle * 0.05 * Math.PI) / 180) * 25 * Math.PI) /
+        180;
       const angle2Rad = angle1Rad + Math.PI + phaseDrift;
 
       // Dot2 also has slightly different orbit size for variety
-      const radiusVariation = 1 + Math.sin(ellipseOrbit.angle * 0.03 * Math.PI / 180) * 0.15;
+      const radiusVariation =
+        1 + Math.sin((ellipseOrbit.angle * 0.03 * Math.PI) / 180) * 0.15;
 
       const x1 =
         ellipseOrbit.centerX + Math.cos(angle1Rad) * ellipseOrbit.radiusX;
       const y1 =
         ellipseOrbit.centerY + Math.sin(angle1Rad) * ellipseOrbit.radiusY;
       const x2 =
-        ellipseOrbit.centerX + Math.cos(angle2Rad) * ellipseOrbit.radiusX * radiusVariation;
+        ellipseOrbit.centerX +
+        Math.cos(angle2Rad) * ellipseOrbit.radiusX * radiusVariation;
       const y2 =
-        ellipseOrbit.centerY + Math.sin(angle2Rad) * ellipseOrbit.radiusY * radiusVariation;
+        ellipseOrbit.centerY +
+        Math.sin(angle2Rad) * ellipseOrbit.radiusY * radiusVariation;
 
       // Depth factor for 3D effect
-      const depth1 = 1 + Math.sin(angle1Rad) * ellipseOrbit.depthScale * ellipseBlend;
-      const depth2 = 1 + Math.sin(angle2Rad) * ellipseOrbit.depthScale * ellipseBlend;
+      const depth1 =
+        1 + Math.sin(angle1Rad) * ellipseOrbit.depthScale * ellipseBlend;
+      const depth2 =
+        1 + Math.sin(angle2Rad) * ellipseOrbit.depthScale * ellipseBlend;
 
       ellipsePositions.set("dot1", { x: x1, y: y1, depthFactor: depth1 });
       ellipsePositions.set("dot2", { x: x2, y: y2, depthFactor: depth2 });
@@ -335,12 +343,14 @@ function getRenderedPosition(
 
   // Phase drift for global orbit - dots aren't perfectly opposite
   // dot1 (orbitAngle=180) gets a subtle drift based on current angle
-  const driftAmount = dot.orbitAngle > 0
-    ? Math.sin(globalState.orbitAngle * 0.08 * Math.PI / 180) * 20
-    : 0;
+  const driftAmount =
+    dot.orbitAngle > 0
+      ? Math.sin((globalState.orbitAngle * 0.08 * Math.PI) / 180) * 20
+      : 0;
 
   // Global orbit position (around viewport center)
-  const angle = ((globalState.orbitAngle + dot.orbitAngle + driftAmount) * Math.PI) / 180;
+  const angle =
+    ((globalState.orbitAngle + dot.orbitAngle + driftAmount) * Math.PI) / 180;
   const orbitX = viewportCenterX + Math.cos(angle) * globalState.orbitRadius;
   const orbitY = viewportCenterY + Math.sin(angle) * globalState.orbitRadius;
 
@@ -669,69 +679,108 @@ export function initDotsAnimation() {
     onUpdate: render, // Single render call per frame instead of per-animation
   });
 
-  // Timeline ratios (hero is ~200vh, about ~100vh, process ~750vh, footer ~50vh = ~1100vh total)
-  // Hero portion: 0 - 0.18 (200/1100)
-  // Wiggle: 0 - 0.044 (first 25% of hero)
-  // EXPLOSION at 0.044: logo scales up + dots scale up + orbit begins - all together!
+  // Timeline ratios (hero is ~120vh, about ~100vh, process ~750vh, footer ~50vh = ~1020vh total)
+  // Hero portion: 0 - 0.12 (120/1020)
+  // Wiggle: 0 - 0.03 (first 25% of hero)
+  // EXPLOSION at 0.03: logo scales up + dots scale up + orbit begins - all together!
 
-  // === Wiggle phase (0 - 4.4% of timeline) ===
-  masterTl.to([dot1, dot2], { offsetX: 30, duration: 0.022 }, 0);
-  masterTl.to([dot1, dot2], { offsetX: 0, duration: 0.022 }, 0.022);
+  // === Wiggle phase (0 - 3% of timeline) ===
+  masterTl.to([dot1, dot2], { offsetX: 30, duration: 0.015 }, 0);
+  masterTl.to([dot1, dot2], { offsetX: 0, duration: 0.015 }, 0.015);
 
-  // === EXPLOSION: Everything happens together at 0.044 ===
+  // === EXPLOSION: Everything happens together at 0.03 ===
   // Colors start changing
-  masterTl.to(dot1, { color: colors.green, duration: 0.06 }, 0.044);
-  masterTl.to(dot2, { color: colors.orange, duration: 0.06 }, 0.044);
+  masterTl.to(dot1, { color: colors.green, duration: 0.05 }, 0.03);
+  masterTl.to(dot2, { color: colors.orange, duration: 0.05 }, 0.03);
 
   // Logo scales up and exits - synchronized with dots
   if (heroContent) {
-    masterTl.to(heroContent, { scale: 3.5, y: "-100vh", duration: 0.10, ease: "power2.out" }, 0.044);
+    masterTl.to(
+      heroContent,
+      { scale: 3.5, y: "-100vh", duration: 0.08, ease: "power2.out" },
+      0.03,
+    );
   }
 
   // Dots scale up
-  masterTl.to(dot1, { scale: 40, duration: 0.08, ease: "power2.out" }, 0.044);
-  masterTl.to(dot2, { scale: 60, duration: 0.08, ease: "power2.out" }, 0.044);
+  masterTl.to(dot1, { scale: 40, duration: 0.06, ease: "power2.out" }, 0.03);
+  masterTl.to(dot2, { scale: 60, duration: 0.06, ease: "power2.out" }, 0.03);
 
   // Orbit radius and angle start TOGETHER - spiral outward while rotating
-  masterTl.to(globalState, { orbitRadius: 700, duration: 0.08, ease: "power2.out" }, 0.044);
-  masterTl.to(globalState, { orbitAngle: 360, duration: 0.16, ease: "power1.out" }, 0.044);
+  masterTl.to(
+    globalState,
+    { orbitRadius: 700, duration: 0.06, ease: "power2.out" },
+    0.03,
+  );
 
-  // === Scale down + orbit contracts (starts around process section) ===
-  masterTl.to(dot1, { scale: 3, duration: 0.12, ease: "power1.inOut" }, 0.10);
-  masterTl.to(dot2, { scale: 3, duration: 0.12, ease: "power1.inOut" }, 0.10);
-  masterTl.to(globalState, { orbitRadius: 0, duration: 0.14, ease: "power1.inOut" }, 0.10);
+  // Global orbit rotation: continues through expansion AND contraction (spiral in + out)
+  // Goes 0 → 540° (1.5 rotations) - keeps spinning as radius contracts
+  masterTl.to(
+    globalState,
+    { orbitAngle: 540, duration: 0.17, ease: "none" },
+    0.03,
+  );
 
-  // === Ellipse blend: overlaps with orbit contraction ===
+  // === Scale down - larger dots are fine with big enough orbit radius ===
+  masterTl.to(dot1, { scale: 6, duration: 0.10, ease: "power1.inOut" }, 0.07);
+  masterTl.to(dot2, { scale: 8, duration: 0.10, ease: "power1.inOut" }, 0.07);
+
+  // Radius contracts AFTER dots are small - safer transition
+  masterTl.to(
+    globalState,
+    { orbitRadius: 0, duration: 0.12, ease: "power2.in" },
+    0.10,
+  );
+
+  // === TRANSITION: Global orbit spirals IN, ellipse orbit spirals OUT ===
+  // Ellipse starts expanding EARLY so dots never both have tiny radii at same time
+  // This prevents dots from colliding at the center
+
+  // Ellipse blend: starts when ellipse radius is already expanding
   masterTl.to(
     { value: 0 },
     {
       value: 1,
-      duration: 0.14,
+      duration: 0.10,
       ease: "power1.inOut",
       onUpdate: function () {
         ellipseBlend = this.targets()[0].value;
         // render() handled by timeline-level onUpdate
       },
     },
-    0.10,
+    0.08,
   );
 
-  // === Ellipse orbit: starts with blend, continuous through footer ===
-  masterTl.to(
+  // Ellipse orbit rotation: starts from where global orbit ends (540°)
+  // Continuous rotation throughout process section and footer
+  masterTl.fromTo(
     ellipseOrbit,
+    { angle: 540 },
     {
-      angle: 5400,
-      duration: 0.76,
+      angle: 4500,
+      duration: 0.80,
       ease: "none",
     },
-    0.10,
+    0.08,
+  );
+
+  // Ellipse radius EXPANDS - large enough to keep bigger dots separated
+  masterTl.to(
+    ellipseOrbit,
+    { radiusX: 200, radiusY: 120, duration: 0.06, ease: "power2.out" },
+    0.08,
   );
 
   // === Breathing size changes - organic pulsing ===
-  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 100, duration: 0.18 }, 0.25);
-  masterTl.to(ellipseOrbit, { radiusX: 120, radiusY: 60, duration: 0.18 }, 0.43);
-  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 80, duration: 0.18 }, 0.61);
-  masterTl.to(ellipseOrbit, { radiusX: 150, radiusY: 60, duration: 0.18 }, 0.79);
+  // Minimum radiusY ~100 keeps scale 6-8 dots safely apart
+  masterTl.to(
+    ellipseOrbit,
+    { radiusX: 240, radiusY: 140, duration: 0.16 },
+    0.20,
+  );
+  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 100, duration: 0.16 }, 0.38);
+  masterTl.to(ellipseOrbit, { radiusX: 220, radiusY: 120, duration: 0.16 }, 0.56);
+  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 110, duration: 0.16 }, 0.74);
 
   // ==============================================
   // RESIZE HANDLER
