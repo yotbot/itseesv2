@@ -721,15 +721,16 @@ export function initDotsAnimation() {
     0.03,
   );
 
-  // === Scale down - larger dots are fine with big enough orbit radius ===
-  masterTl.to(dot1, { scale: 6, duration: 0.10, ease: "power1.inOut" }, 0.07);
-  masterTl.to(dot2, { scale: 8, duration: 0.10, ease: "power1.inOut" }, 0.07);
+  // === Scale down - starts when scale-up ends (0.09) to avoid overlap ===
+  // Overlap causes jumps when scrubbing backwards
+  masterTl.to(dot1, { scale: 6, duration: 0.08, ease: "power1.inOut" }, 0.09);
+  masterTl.to(dot2, { scale: 8, duration: 0.08, ease: "power1.inOut" }, 0.09);
 
   // Radius contracts AFTER dots are small - safer transition
   masterTl.to(
     globalState,
     { orbitRadius: 0, duration: 0.12, ease: "power2.in" },
-    0.10,
+    0.1,
   );
 
   // === TRANSITION: Global orbit spirals IN, ellipse orbit spirals OUT ===
@@ -741,7 +742,7 @@ export function initDotsAnimation() {
     { value: 0 },
     {
       value: 1,
-      duration: 0.10,
+      duration: 0.1,
       ease: "power1.inOut",
       onUpdate: function () {
         ellipseBlend = this.targets()[0].value;
@@ -751,14 +752,14 @@ export function initDotsAnimation() {
     0.08,
   );
 
-  // Ellipse orbit rotation: starts from where global orbit ends (540°)
-  // Continuous rotation throughout process section and footer
+  // Ellipse orbit rotation: one continuous animation, constant speed
+  // Less total rotation = less movement during about section
   masterTl.fromTo(
     ellipseOrbit,
     { angle: 540 },
     {
-      angle: 4500,
-      duration: 0.80,
+      angle: 2000,
+      duration: 0.8,
       ease: "none",
     },
     0.08,
@@ -772,15 +773,28 @@ export function initDotsAnimation() {
   );
 
   // === Breathing size changes - organic pulsing ===
+  // Starts after about section (~0.22) so no jumps during about
   // Minimum radiusY ~100 keeps scale 6-8 dots safely apart
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 240, radiusY: 140, duration: 0.16 },
-    0.20,
+    { radiusX: 240, radiusY: 140, duration: 0.14 },
+    0.24,
   );
-  masterTl.to(ellipseOrbit, { radiusX: 180, radiusY: 100, duration: 0.16 }, 0.38);
-  masterTl.to(ellipseOrbit, { radiusX: 220, radiusY: 120, duration: 0.16 }, 0.56);
-  masterTl.to(ellipseOrbit, { radiusX: 200, radiusY: 110, duration: 0.16 }, 0.74);
+  masterTl.to(
+    ellipseOrbit,
+    { radiusX: 180, radiusY: 100, duration: 0.14 },
+    0.4,
+  );
+  masterTl.to(
+    ellipseOrbit,
+    { radiusX: 220, radiusY: 120, duration: 0.14 },
+    0.56,
+  );
+  masterTl.to(
+    ellipseOrbit,
+    { radiusX: 200, radiusY: 110, duration: 0.14 },
+    0.72,
+  );
 
   // ==============================================
   // RESIZE HANDLER
