@@ -81,7 +81,7 @@ const globalState = {
 // Elliptical orbit state (for "concept" phase depth effect)
 // Starts at radius 0 - will expand outward as it takes over from global orbit
 const ellipseOrbit: EllipseOrbitState = {
-  active: false, // Will be removed - use blend instead
+  active: false,
   centerX: 0,
   centerY: 0,
   radiusX: 0, // Starts at 0, expands during transition

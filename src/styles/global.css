@@ -53,19 +53,6 @@
   .section-container {
     @apply max-w-7xl mx-auto px-6 lg:px-8;
   }
-
-  .process-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg;
-  }
-
-  .service-card {
-    @apply bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300;
-  }
-}
-
-/* Smooth scrolling for the entire document */
-html {
-  scroll-behavior: smooth;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -83,5 +70,5 @@ body::-webkit-scrollbar-thumb {
 }
 
 body::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #4b607f;
 }
