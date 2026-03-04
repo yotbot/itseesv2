@@ -639,19 +639,17 @@ export function initDotsAnimation() {
 
   const isMobile = window.innerWidth < 768;
 
-  // baseSize scales with the logo's rendered width so dots stay proportional
-  // at any viewport size. ~2.7% of logo width matches the "e" eye on desktop.
-  // Guard against width=0 (layout not computed yet) by falling back to 24.
-  const getLogoBaseSize = () => {
-    const rect = logo?.getBoundingClientRect();
-    return rect && rect.width > 0 ? rect.width * 0.027 : 24;
-  };
+  // Derive baseSize purely from viewport width — no DOM measurement needed.
+  // Logo is w-[80vw] max-w-4xl (max-w-4xl = 896px at 16px base).
+  // ~2.7% of logo width matches the "e" eye holes across all screen sizes.
+  // This is always accurate from frame 0 and never causes mid-animation jumps.
+  const getBaseSize = () => Math.min(window.innerWidth * 0.80, 896) * 0.027;
 
   const dot1 = createDot("dot1", {
     element: dot1Element,
     baseXPercent: -0.02,
     baseYPercent: -0.05,
-    baseSize: getLogoBaseSize(),
+    baseSize: getBaseSize(),
     orbitAngle: 180,
   });
 
@@ -659,31 +657,12 @@ export function initDotsAnimation() {
     element: dot2Element,
     baseXPercent: 0.1,
     baseYPercent: -0.05,
-    baseSize: getLogoBaseSize(),
+    baseSize: getBaseSize(),
     orbitAngle: 0,
   });
 
   // Initial render
   render();
-
-  // Re-measure after layout settles — getBoundingClientRect may be 0 during init.
-  // Double-RAF ensures two paint cycles have passed so layout is fully computed.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const size = getLogoBaseSize();
-      dot1.baseSize = size;
-      dot2.baseSize = size;
-      render();
-    });
-  });
-
-  // Re-measure again once custom fonts are loaded (Geist affects logo width)
-  document.fonts.ready.then(() => {
-    const size = getLogoBaseSize();
-    dot1.baseSize = size;
-    dot2.baseSize = size;
-    render();
-  });
 
   // ==============================================
   // SCROLL ANIMATIONS
@@ -843,8 +822,7 @@ export function initDotsAnimation() {
   // ==============================================
 
   resizeHandler = () => {
-    // Recalculate dot size to match current logo width
-    const newBaseSize = getLogoBaseSize();
+    const newBaseSize = getBaseSize();
     const d1 = dots.get("dot1");
     const d2 = dots.get("dot2");
     if (d1) d1.baseSize = newBaseSize;
