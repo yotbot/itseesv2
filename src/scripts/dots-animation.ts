@@ -637,22 +637,53 @@ export function initDotsAnimation() {
   // CREATE MAIN DOTS
   // ==============================================
 
+  const isMobile = window.innerWidth < 768;
+
+  // baseSize scales with the logo's rendered width so dots stay proportional
+  // at any viewport size. ~2.7% of logo width matches the "e" eye on desktop.
+  // Guard against width=0 (layout not computed yet) by falling back to 24.
+  const getLogoBaseSize = () => {
+    const rect = logo?.getBoundingClientRect();
+    return rect && rect.width > 0 ? rect.width * 0.027 : 24;
+  };
+
   const dot1 = createDot("dot1", {
     element: dot1Element,
     baseXPercent: -0.02,
     baseYPercent: -0.05,
-    orbitAngle: 180, // Left side in orbit (matches starting position)
+    baseSize: getLogoBaseSize(),
+    orbitAngle: 180,
   });
 
   const dot2 = createDot("dot2", {
     element: dot2Element,
     baseXPercent: 0.1,
     baseYPercent: -0.05,
-    orbitAngle: 0, // Right side in orbit (matches starting position)
+    baseSize: getLogoBaseSize(),
+    orbitAngle: 0,
   });
 
   // Initial render
   render();
+
+  // Re-measure after layout settles — getBoundingClientRect may be 0 during init.
+  // Double-RAF ensures two paint cycles have passed so layout is fully computed.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const size = getLogoBaseSize();
+      dot1.baseSize = size;
+      dot2.baseSize = size;
+      render();
+    });
+  });
+
+  // Re-measure again once custom fonts are loaded (Geist affects logo width)
+  document.fonts.ready.then(() => {
+    const size = getLogoBaseSize();
+    dot1.baseSize = size;
+    dot2.baseSize = size;
+    render();
+  });
 
   // ==============================================
   // SCROLL ANIMATIONS
@@ -684,8 +715,22 @@ export function initDotsAnimation() {
   // Wiggle: 0 - 0.03 (first 25% of hero)
   // EXPLOSION at 0.03: logo scales up + dots scale up + orbit begins - all together!
 
+  // Responsive values
+  const vw = window.innerWidth;
+  const peakOrbitRadius = isMobile ? vw * 0.7 : 700;
+  const peakScale1 = isMobile ? 28 : 40;
+  const peakScale2 = isMobile ? 40 : 60;
+  const restScale1 = isMobile ? 8 : 6;
+  const restScale2 = isMobile ? 10 : 8;
+  const elRadiusX = isMobile ? Math.min(160, vw * 0.42) : 200;
+  const elRadiusY = isMobile ? 90 : 120;
+  const elRadiusXMax = isMobile ? Math.min(190, vw * 0.48) : 240;
+  const elRadiusYMax = isMobile ? 110 : 140;
+  const processScale1 = 16;
+  const processScale2 = 20;
+
   // === Wiggle phase (0 - 3% of timeline) ===
-  masterTl.to([dot1, dot2], { offsetX: 30, duration: 0.015 }, 0);
+  masterTl.to([dot1, dot2], { offsetX: isMobile ? 15 : 30, duration: 0.015 }, 0);
   masterTl.to([dot1, dot2], { offsetX: 0, duration: 0.015 }, 0.015);
 
   // === EXPLOSION: Everything happens together at 0.03 ===
@@ -697,24 +742,23 @@ export function initDotsAnimation() {
   if (heroContent) {
     masterTl.to(
       heroContent,
-      { scale: 3.5, y: "-100vh", duration: 0.08, ease: "power2.out" },
+      { scale: isMobile ? 2 : 3.5, y: "-100vh", duration: 0.08, ease: "power2.out" },
       0.03,
     );
   }
 
   // Dots scale up
-  masterTl.to(dot1, { scale: 40, duration: 0.06, ease: "power2.out" }, 0.03);
-  masterTl.to(dot2, { scale: 60, duration: 0.06, ease: "power2.out" }, 0.03);
+  masterTl.to(dot1, { scale: peakScale1, duration: 0.06, ease: "power2.out" }, 0.03);
+  masterTl.to(dot2, { scale: peakScale2, duration: 0.06, ease: "power2.out" }, 0.03);
 
   // Orbit radius and angle start TOGETHER - spiral outward while rotating
   masterTl.to(
     globalState,
-    { orbitRadius: 700, duration: 0.06, ease: "power2.out" },
+    { orbitRadius: peakOrbitRadius, duration: 0.06, ease: "power2.out" },
     0.03,
   );
 
   // Global orbit rotation: continues through expansion AND contraction (spiral in + out)
-  // Goes 0 → 540° (1.5 rotations) - keeps spinning as radius contracts
   masterTl.to(
     globalState,
     { orbitAngle: 540, duration: 0.17, ease: "none" },
@@ -722,9 +766,8 @@ export function initDotsAnimation() {
   );
 
   // === Scale down - starts when scale-up ends (0.09) to avoid overlap ===
-  // Overlap causes jumps when scrubbing backwards
-  masterTl.to(dot1, { scale: 6, duration: 0.08, ease: "power1.inOut" }, 0.09);
-  masterTl.to(dot2, { scale: 8, duration: 0.08, ease: "power1.inOut" }, 0.09);
+  masterTl.to(dot1, { scale: restScale1, duration: 0.08, ease: "power1.inOut" }, 0.09);
+  masterTl.to(dot2, { scale: restScale2, duration: 0.08, ease: "power1.inOut" }, 0.09);
 
   // Radius contracts AFTER dots are small - safer transition
   masterTl.to(
@@ -734,9 +777,6 @@ export function initDotsAnimation() {
   );
 
   // === TRANSITION: Global orbit spirals IN, ellipse orbit spirals OUT ===
-  // Ellipse starts expanding EARLY so dots never both have tiny radii at same time
-  // This prevents dots from colliding at the center
-
   // Ellipse blend: starts when ellipse radius is already expanding
   masterTl.to(
     { value: 0 },
@@ -746,14 +786,12 @@ export function initDotsAnimation() {
       ease: "power1.inOut",
       onUpdate: function () {
         ellipseBlend = this.targets()[0].value;
-        // render() handled by timeline-level onUpdate
       },
     },
     0.08,
   );
 
   // Ellipse orbit rotation: one continuous animation, constant speed
-  // Less total rotation = less movement during about section
   masterTl.fromTo(
     ellipseOrbit,
     { angle: 540 },
@@ -765,34 +803,38 @@ export function initDotsAnimation() {
     0.08,
   );
 
-  // Ellipse radius EXPANDS - large enough to keep bigger dots separated
+  // Ellipse radius EXPANDS
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 200, radiusY: 120, duration: 0.06, ease: "power2.out" },
+    { radiusX: elRadiusX, radiusY: elRadiusY, duration: 0.06, ease: "power2.out" },
     0.08,
   );
 
+  // === Process section scale - dots grow larger once transition settles (mobile only) ===
+  if (isMobile) {
+    masterTl.to(dot1, { scale: processScale1, duration: 0.06, ease: "power1.inOut" }, 0.20);
+    masterTl.to(dot2, { scale: processScale2, duration: 0.06, ease: "power1.inOut" }, 0.20);
+  }
+
   // === Breathing size changes - organic pulsing ===
-  // Starts after about section (~0.22) so no jumps during about
-  // Minimum radiusY ~100 keeps scale 6-8 dots safely apart
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 240, radiusY: 140, duration: 0.14 },
+    { radiusX: elRadiusXMax, radiusY: elRadiusYMax, duration: 0.14 },
     0.24,
   );
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 180, radiusY: 100, duration: 0.14 },
+    { radiusX: elRadiusX * 0.9, radiusY: elRadiusY * 0.85, duration: 0.14 },
     0.4,
   );
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 220, radiusY: 120, duration: 0.14 },
+    { radiusX: elRadiusX * 1.1, radiusY: elRadiusY, duration: 0.14 },
     0.56,
   );
   masterTl.to(
     ellipseOrbit,
-    { radiusX: 200, radiusY: 110, duration: 0.14 },
+    { radiusX: elRadiusX, radiusY: elRadiusY * 0.92, duration: 0.14 },
     0.72,
   );
 
@@ -801,6 +843,12 @@ export function initDotsAnimation() {
   // ==============================================
 
   resizeHandler = () => {
+    // Recalculate dot size to match current logo width
+    const newBaseSize = getLogoBaseSize();
+    const d1 = dots.get("dot1");
+    const d2 = dots.get("dot2");
+    if (d1) d1.baseSize = newBaseSize;
+    if (d2) d2.baseSize = newBaseSize;
     render();
     ScrollTrigger.refresh();
   };

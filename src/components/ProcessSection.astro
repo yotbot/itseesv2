@@ -48,16 +48,16 @@ const stages = [
   {stages.map((stage, index) => (
     <div
       id={`stage-${stage.id}`}
-      class="stage-section h-[300vh] pt-[20vh]"
+      class="stage-section h-[280vh] md:h-[300vh] pt-[15vh] md:pt-[20vh]"
       data-stage={stage.id}
     >
       <div class={`section-container h-full relative z-20 ${stage.align === 'right' ? 'flex justify-end' : ''}`}>
-        <div class="process-card stage-card sticky top-[20vh] h-fit max-w-2xl p-8">
-          <div class="mb-2">
+        <div class="process-card stage-card sticky top-[15vh] md:top-[20vh] h-fit max-w-2xl p-6 md:p-8">
+          <div class="mb-4">
             <span class="block font-bold text-itsees-orange/70 leading-none tracking-tighter" style="font-size: clamp(5rem, 14vw, 12rem);">
               {stage.number}
             </span>
-            <h3 class="text-3xl md:text-4xl font-bold text-itsees-text leading-tight -mt-2">
+            <h3 class="text-3xl md:text-4xl font-bold text-itsees-text leading-tight mt-2 md:-mt-2">
               {stage.title}
             </h3>
           </div>
@@ -107,6 +107,6 @@ const stages = [
   }
 
   .process-card {
-    @apply bg-white/30 backdrop-blur rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-1 ring-white/20;
+    @apply bg-white/30 backdrop-blur-sm md:backdrop-blur rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-1 ring-white/20;
   }
 </style>
