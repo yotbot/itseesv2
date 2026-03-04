@@ -4,6 +4,7 @@ import FloatingDots from '../components/FloatingDots.astro';
 import HeroSection from '../components/HeroSection.astro';
 import AboutSection from '../components/AboutSection.astro';
 import ProcessSection from '../components/ProcessSection.astro';
+import FooterSection from '../components/FooterSection.astro';
 ---
 
 <Layout title="itsees | Full-Service Web Development">
@@ -16,32 +17,7 @@ import ProcessSection from '../components/ProcessSection.astro';
     <AboutSection />
     <ProcessSection />
 
-    <!-- Footer / Contact Section -->
-    <footer id="contact" class="relative min-h-[50vh] bg-itsees-bg flex items-center justify-center pt-40 pb-20">
-      <div class="section-container text-center relative z-20">
-        <h2 class="font-bold text-itsees-text leading-none tracking-tighter mb-6" style="font-size: clamp(3rem, 9vw, 9rem);">
-          Ready to build<br />something?
-        </h2>
-        <p class="text-xs uppercase tracking-widest text-itsees-text/80 mb-8 max-w-xs mx-auto">
-          Let's turn your vision into reality. Reach out and let's start the conversation.
-        </p>
-        <a
-          href="mailto:hello@itsees.dev"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-itsees-orange text-itsees-dark rounded-full text-lg font-medium hover:bg-itsees-orange/80 transition-colors duration-300"
-        >
-          Get in touch
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-          </svg>
-        </a>
-
-        <div class="mt-20 pt-8 border-t border-itsees-text/10">
-          <p class="text-itsees-text/40 text-sm">
-            &copy; {new Date().getFullYear()} itsees. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
+    <FooterSection />
   </main>
 </Layout>
 
