@@ -44,6 +44,35 @@ const stages = [
 ];
 ---
 
+<!-- Vertical scroll ruler - fixed right side, visible only during process section -->
+<div id="process-ruler" class="fixed right-5 md:right-8 top-1/2 -translate-y-1/2 z-30 pointer-events-none flex items-start gap-3">
+  <!-- Line + ticks + dot -->
+  <div class="ruler-track relative" style="width: 2px; height: 200px;">
+    <!-- Background line -->
+    <div class="absolute inset-0 bg-itsees-text/15 rounded-full"></div>
+    <!-- Progress fill -->
+    <div id="ruler-fill" class="absolute top-0 left-0 right-0 rounded-full origin-top bg-itsees-orange" style="height: 0%;"></div>
+    <!-- Stage ticks -->
+    {stages.map((_, i) => (
+      <div
+        class="absolute left-1/2 w-[7px] h-[1px] bg-itsees-text/30 -translate-x-1/2"
+        style={`top: ${(i / (stages.length - 1)) * 100}%`}
+      ></div>
+    ))}
+    <!-- Progress dot -->
+    <div id="ruler-dot" class="absolute left-1/2 w-[10px] h-[10px] rounded-full bg-itsees-orange -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_rgba(243,112,30,0.6)]" style="top: 0%;"></div>
+  </div>
+  <!-- Stage numbers -->
+  <div class="flex flex-col justify-between" style="height: 200px;">
+    {stages.map((stage, i) => (
+      <span
+        id={`ruler-label-${i}`}
+        class="ruler-label text-[10px] font-mono leading-none text-itsees-text/30 transition-colors duration-300"
+      >{stage.number}</span>
+    ))}
+  </div>
+</div>
+
 <section id="process" class="relative bg-itsees-bg">
   {stages.map((stage, index) => (
     <div
@@ -94,6 +123,77 @@ const stages = [
       });
     });
 
+    // === Vertical scroll ruler ===
+    const ruler = document.getElementById('process-ruler');
+    const rulerFill = document.getElementById('ruler-fill');
+    const rulerDot = document.getElementById('ruler-dot');
+    const rulerLabels = document.querySelectorAll('.ruler-label');
+    const stageCount = 5;
+
+    // Set initial state (hidden, slid off to the right)
+    gsap.set(ruler, { x: 50, opacity: 0 });
+
+    // Spring entrance when process section enters viewport
+    ScrollTrigger.create({
+      trigger: '#process',
+      start: 'top 70%',
+      end: 'top 20%',
+      onEnter: () => {
+        gsap.to(ruler, {
+          x: 0,
+          opacity: 1,
+          duration: 1.4,
+          ease: 'elastic.out(1, 0.45)',
+        });
+      },
+      onLeaveBack: () => {
+        gsap.to(ruler, { x: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
+      },
+    });
+
+    // Exit when leaving bottom of process section
+    ScrollTrigger.create({
+      trigger: '#process',
+      start: 'bottom 80%',
+      onEnter: () => {
+        gsap.to(ruler, { x: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
+      },
+      onLeaveBack: () => {
+        gsap.to(ruler, {
+          x: 0,
+          opacity: 1,
+          duration: 1.4,
+          ease: 'elastic.out(1, 0.45)',
+        });
+      },
+    });
+
+    // Progress tracking through process section
+    ScrollTrigger.create({
+      trigger: '#process',
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        const p = self.progress;
+
+        // Move fill and dot
+        if (rulerFill) (rulerFill as HTMLElement).style.height = `${p * 100}%`;
+        if (rulerDot) (rulerDot as HTMLElement).style.top = `${p * 100}%`;
+
+        // Highlight active stage label
+        const activeIndex = Math.min(Math.floor(p * stageCount), stageCount - 1);
+        rulerLabels.forEach((el, i) => {
+          const label = el as HTMLElement;
+          if (i === activeIndex) {
+            label.style.color = '#f3701e';
+            label.style.opacity = '1';
+          } else {
+            label.style.color = '';
+            label.style.opacity = '0.3';
+          }
+        });
+      },
+    });
   });
 </script>
 
