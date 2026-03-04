@@ -74,7 +74,7 @@ const stages = [
 </div>
 
 <section id="process" class="relative bg-itsees-bg">
-  {stages.map((stage, index) => (
+  {stages.map((stage) => (
     <div
       id={`stage-${stage.id}`}
       class="stage-section h-[280vh] md:h-[300vh] pt-[15vh] md:pt-[20vh]"
@@ -133,39 +133,19 @@ const stages = [
     // Set initial state (hidden, slid off to the right)
     gsap.set(ruler, { x: 50, opacity: 0 });
 
-    // Spring entrance when process section enters viewport
+    // Single trigger covers the full process section — all 4 direction states handled
+    // to prevent ruler getting stuck on fast scroll.
+    const showRuler = () => gsap.to(ruler, { x: 0, opacity: 1, duration: 1.4, ease: 'elastic.out(1, 0.45)' });
+    const hideRuler = () => gsap.to(ruler, { x: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
+
     ScrollTrigger.create({
       trigger: '#process',
       start: 'top 70%',
-      end: 'top 20%',
-      onEnter: () => {
-        gsap.to(ruler, {
-          x: 0,
-          opacity: 1,
-          duration: 1.4,
-          ease: 'elastic.out(1, 0.45)',
-        });
-      },
-      onLeaveBack: () => {
-        gsap.to(ruler, { x: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
-      },
-    });
-
-    // Exit when leaving bottom of process section
-    ScrollTrigger.create({
-      trigger: '#process',
-      start: 'bottom 80%',
-      onEnter: () => {
-        gsap.to(ruler, { x: 50, opacity: 0, duration: 0.35, ease: 'power2.in' });
-      },
-      onLeaveBack: () => {
-        gsap.to(ruler, {
-          x: 0,
-          opacity: 1,
-          duration: 1.4,
-          ease: 'elastic.out(1, 0.45)',
-        });
-      },
+      end: 'bottom 80%',
+      onEnter: showRuler,
+      onLeave: hideRuler,
+      onEnterBack: showRuler,
+      onLeaveBack: hideRuler,
     });
 
     // Progress tracking through process section
