@@ -54,17 +54,17 @@ const stages = [
       <div class={`section-container h-full relative z-20 ${stage.align === 'right' ? 'flex justify-end' : ''}`}>
         <div class="process-card stage-card sticky top-[30vh] h-fit max-w-2xl p-8">
           <div class="flex items-baseline gap-4 mb-4">
-            <span class="text-6xl md:text-8xl font-bold text-itsees-dark/20">
+            <span class="text-6xl md:text-8xl font-bold text-itsees-orange/80">
               {stage.number}
             </span>
-            <h3 class="text-3xl md:text-5xl font-bold text-itsees-dark">
+            <h3 class="text-3xl md:text-5xl font-bold text-itsees-text">
               {stage.title}
             </h3>
           </div>
-          <p class="text-2xl md:text-3xl text-itsees-dark/80 mb-4 font-medium">
+          <p class="text-2xl md:text-3xl text-itsees-text/80 mb-4 font-medium">
             {stage.description}
           </p>
-          <p class="text-lg text-itsees-dark/60 leading-relaxed">
+          <p class="text-lg text-itsees-text/60 leading-relaxed">
             {stage.details}
           </p>
         </div>
@@ -107,6 +107,6 @@ const stages = [
   }
 
   .process-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm;
+    @apply bg-white/30 backdrop-blur rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-1 ring-white/20;
   }
 </style>

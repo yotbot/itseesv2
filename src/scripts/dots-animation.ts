@@ -56,11 +56,11 @@ interface EllipseOrbitState {
 // ==============================================
 
 export const colors = {
-  dark: "#1a1a1a",
-  green: "#5a9a3e",
-  orange: "#e08840",
-  greenLight: "#7ac55a",
-  orangeLight: "#f5a862",
+  dark: "#141414",
+  green: "#4b607f",
+  orange: "#f3701e",
+  greenLight: "#6a82a8",
+  orangeLight: "#f5935a",
 };
 
 // ==============================================

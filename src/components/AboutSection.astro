@@ -28,10 +28,10 @@ const services = [
   <div class="section-container relative z-20">
     <!-- Main headline -->
     <div class="mb-20">
-      <h2 class="text-5xl md:text-7xl font-bold text-itsees-dark mb-6 about-title">
+      <h2 class="text-5xl md:text-7xl font-bold text-itsees-text mb-6 about-title">
         Full-service<br />web development
       </h2>
-      <p class="text-xl md:text-2xl text-itsees-dark/70 max-w-2xl about-subtitle">
+      <p class="text-xl md:text-2xl text-itsees-text/70 max-w-2xl about-subtitle">
         From concept to launch and beyond. We handle everything so you can focus on what matters most—your business.
       </p>
     </div>
@@ -44,12 +44,12 @@ const services = [
           data-service-index={index}
         >
           <div class="flex items-start gap-4">
-            <div class="text-itsees-blue group-hover:text-itsees-blue-light transition-colors" set:html={service.icon} />
+            <div class="text-itsees-dark transition-colors" set:html={service.icon} />
             <div>
-              <h3 class="text-xl font-semibold text-itsees-dark mb-2">
+              <h3 class="text-xl font-semibold text-itsees-text mb-2">
                 {service.title}
               </h3>
-              <p class="text-itsees-dark/60">
+              <p class="text-itsees-text/60">
                 {service.description}
               </p>
             </div>
@@ -109,6 +109,6 @@ const services = [
 
 <style>
   .service-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm;
+    @apply bg-white/30 backdrop-blur-xl  rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-1 ring-white/20;
   }
 </style>
