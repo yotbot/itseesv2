@@ -76,6 +76,7 @@ let logo: HTMLElement | null = null;
 const globalState = {
   orbitAngle: 0,
   orbitRadius: 0,
+  ellipseBlend: 0, // 0 = global orbit, 1 = ellipse orbit — GSAP tweens this directly
 };
 
 // Elliptical orbit state (for "concept" phase depth effect)
@@ -89,10 +90,6 @@ const ellipseOrbit: EllipseOrbitState = {
   depthScale: 0.4,
   angle: 0,
 };
-
-// Blend factor: 0 = use global orbit, 1 = use ellipse orbit
-// Animated via scrub, no callbacks needed
-let ellipseBlend = 0;
 
 // ==============================================
 // DOT CREATION & MANAGEMENT
@@ -201,7 +198,7 @@ function render() {
   > = new Map();
 
   // Calculate ellipse positions when blend > 0
-  if (ellipseBlend > 0) {
+  if (globalState.ellipseBlend > 0) {
     const dot1 = dots.get("dot1");
     const dot2 = dots.get("dot2");
 
@@ -233,15 +230,15 @@ function render() {
 
       // Depth factor for 3D effect
       const depth1 =
-        1 + Math.sin(angle1Rad) * ellipseOrbit.depthScale * ellipseBlend;
+        1 + Math.sin(angle1Rad) * ellipseOrbit.depthScale * globalState.ellipseBlend;
       const depth2 =
-        1 + Math.sin(angle2Rad) * ellipseOrbit.depthScale * ellipseBlend;
+        1 + Math.sin(angle2Rad) * ellipseOrbit.depthScale * globalState.ellipseBlend;
 
       ellipsePositions.set("dot1", { x: x1, y: y1, depthFactor: depth1 });
       ellipsePositions.set("dot2", { x: x2, y: y2, depthFactor: depth2 });
 
       // Z-index when in ellipse mode
-      if (ellipseBlend > 0.5) {
+      if (globalState.ellipseBlend > 0.5) {
         dot1.element.style.zIndex = Math.sin(angle1Rad) > 0 ? "2" : "1";
         dot2.element.style.zIndex = Math.sin(angle2Rad) > 0 ? "2" : "1";
       }
@@ -253,7 +250,7 @@ function render() {
     let y: number;
     let depthMultiplier = 1;
 
-    if (ellipseBlend > 0 && ellipsePositions.has(dot.id)) {
+    if (globalState.ellipseBlend > 0 && ellipsePositions.has(dot.id)) {
       // Blend between global orbit and ellipse orbit
       const globalPos = getRenderedPosition(
         dot,
@@ -267,9 +264,9 @@ function render() {
       const ellipsePos = ellipsePositions.get(dot.id)!;
 
       // Smooth blend
-      x = globalPos.x + (ellipsePos.x - globalPos.x) * ellipseBlend;
-      y = globalPos.y + (ellipsePos.y - globalPos.y) * ellipseBlend;
-      depthMultiplier = 1 + (ellipsePos.depthFactor - 1) * ellipseBlend;
+      x = globalPos.x + (ellipsePos.x - globalPos.x) * globalState.ellipseBlend;
+      y = globalPos.y + (ellipsePos.y - globalPos.y) * globalState.ellipseBlend;
+      depthMultiplier = 1 + (ellipsePos.depthFactor - 1) * globalState.ellipseBlend;
     } else if (dot.parentId) {
       // Satellite: orbit around parent dot
       const parent = dots.get(dot.parentId);
@@ -756,19 +753,8 @@ export function initDotsAnimation() {
   );
 
   // === TRANSITION: Global orbit spirals IN, ellipse orbit spirals OUT ===
-  // Ellipse blend: starts when ellipse radius is already expanding
-  masterTl.to(
-    { value: 0 },
-    {
-      value: 1,
-      duration: 0.1,
-      ease: "power1.inOut",
-      onUpdate: function () {
-        ellipseBlend = this.targets()[0].value;
-      },
-    },
-    0.08,
-  );
+  // Ellipse blend: GSAP tweens globalState.ellipseBlend directly — reliable scrub reversal
+  masterTl.to(globalState, { ellipseBlend: 1, duration: 0.1, ease: "power1.inOut" }, 0.08);
 
   // Ellipse orbit rotation: one continuous animation, constant speed
   masterTl.fromTo(
@@ -842,5 +828,4 @@ export {
   render,
   globalState,
   ellipseOrbit,
-  ellipseBlend,
 };

@@ -45,7 +45,7 @@ const stages = [
 ---
 
 <!-- Vertical scroll ruler - fixed right side, visible only during process section -->
-<div id="process-ruler" class="fixed right-5 md:right-8 top-1/2 -translate-y-1/2 z-30 pointer-events-none flex items-start gap-3">
+<div id="process-ruler" class="fixed right-12 md:right-8 top-1/2 -translate-y-1/2 z-30 pointer-events-none flex items-start gap-3">
   <!-- Line + ticks + dot -->
   <div class="ruler-track relative" style="width: 2px; height: 200px;">
     <!-- Background line -->
@@ -81,7 +81,7 @@ const stages = [
       data-stage={stage.id}
     >
       <div class={`section-container h-full relative z-20 ${stage.align === 'right' ? 'flex justify-end' : ''}`}>
-        <div class="process-card stage-card sticky top-[15vh] md:top-[20vh] h-fit max-w-2xl p-6 md:p-8">
+        <div class="process-card stage-card sticky top-[15vh] md:top-[20vh] h-fit max-w-2xl p-5 md:p-8 mr-12 md:mr-0">
           <div class="mb-4">
             <span class="block font-bold text-itsees-orange/70 leading-none tracking-tighter" style="font-size: clamp(5rem, 14vw, 12rem);">
               {stage.number}
