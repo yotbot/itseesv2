@@ -681,7 +681,8 @@ export function initDotsAnimation() {
       start: "top top",
       endTrigger: footer || "#process",
       end: "bottom bottom",
-      scrub: 1,
+      scrub: 0.5,
+      fastScrollEnd: 3000,
     },
     onUpdate: render, // Single render call per frame instead of per-animation
   });
