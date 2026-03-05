@@ -642,6 +642,12 @@ export function initDotsAnimation() {
   // This is always accurate from frame 0 and never causes mid-animation jumps.
   const getBaseSize = () => Math.min(window.innerWidth * 0.80, 896) * 0.027;
 
+  // Match initial dot color to the logo text so dots blend seamlessly at rest.
+  // In light mode this is #141414, in dark mode #e8d8c9.
+  const themeTextColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-text").trim();
+  if (themeTextColor) colors.dark = themeTextColor;
+
   const dot1 = createDot("dot1", {
     element: dot1Element,
     baseXPercent: -0.02,
@@ -763,7 +769,7 @@ export function initDotsAnimation() {
     ellipseOrbit,
     { angle: 540 },
     {
-      angle: 4500,
+      angle: 4545,
       duration: 0.8,
       ease: "none",
     },
@@ -822,6 +828,23 @@ export function initDotsAnimation() {
     ScrollTrigger.refresh();
   };
   window.addEventListener("resize", resizeHandler);
+}
+
+// Update initial dot color when theme changes (light ↔ dark).
+// Dots in their initial state (not yet animated to green/orange) will update instantly.
+export function updateThemeColor() {
+  const textColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-text").trim();
+  if (!textColor) return;
+
+  const prevColor = colors.dark;
+  colors.dark = textColor;
+
+  // Re-color any dot still showing the previous initial color
+  dots.forEach((dot) => {
+    if (dot.color === prevColor) dot.color = textColor;
+  });
+  render();
 }
 
 // Export for external use

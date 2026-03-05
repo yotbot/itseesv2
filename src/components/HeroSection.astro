@@ -19,7 +19,7 @@
             font-family: 'Geist', system-ui, sans-serif;
             font-weight: 700;
             font-size: 72px;
-            fill: #141414;
+            fill: var(--color-text);
           }
         </style>
       </defs>
@@ -31,9 +31,9 @@
   </div>
 
   <!-- Scroll indicator -->
-  <div class="scroll-indicator fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-dark/50 z-20">
+  <div class="scroll-indicator fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-text/50 z-20">
     <span class="text-sm tracking-wider uppercase">Scroll</span>
-    <div class="w-px h-12 bg-gradient-to-b from-itsees-dark/50 to-transparent animate-pulse"></div>
+    <div class="scroll-line w-px h-12 animate-pulse"></div>
   </div>
 </section>
 
@@ -73,5 +73,12 @@
 
   .e-letter {
     letter-spacing: 0.05em;
+  }
+
+  .scroll-line {
+    background: var(--color-text);
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+    mask-image: linear-gradient(to bottom, black, transparent);
   }
 </style>

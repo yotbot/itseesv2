@@ -5,8 +5,8 @@ export default {
     extend: {
       colors: {
         'itsees-dark': '#141414',
-        'itsees-bg': '#e8d8c9',
-        'itsees-text': '#141414',
+        'itsees-bg': 'var(--color-bg)',
+        'itsees-text': 'var(--color-text)',
         'itsees-blue': '#4b607f',
         'itsees-blue-light': '#6a82a8',
         'itsees-orange': '#f3701e',

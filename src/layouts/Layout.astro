@@ -17,6 +17,13 @@ const { title, description = "itsees - Full-service web development company" } =
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
 
+    <!-- Apply saved theme before first paint to avoid flash -->
+    <script is:inline>
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+
     <!-- Preload Geist font -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   </head>
