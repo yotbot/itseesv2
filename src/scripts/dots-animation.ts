@@ -699,12 +699,13 @@ export function initDotsAnimation() {
   const peakScale2 = isMobile ? 40 : 60;
   const restScale1 = isMobile ? 8 : 6;
   const restScale2 = isMobile ? 10 : 8;
-  const elRadiusX = isMobile ? Math.min(160, vw * 0.42) : 200;
-  const elRadiusY = isMobile ? 90 : 120;
-  const elRadiusXMax = isMobile ? Math.min(190, vw * 0.48) : 240;
-  const elRadiusYMax = isMobile ? 110 : 140;
-  const processScale1 = 16;
-  const processScale2 = 20;
+  const elRadiusX = isMobile ? Math.min(110, vw * 0.30) : 270;
+  const elRadiusY = isMobile ? 65 : 155;
+  const elRadiusXMax = isMobile ? Math.min(130, vw * 0.34) : 310;
+  const elRadiusYMax = isMobile ? 80 : 175;
+  const processScale1 = 16; // mobile dot1
+  const processScale2 = 20; // mobile dot2
+  const processScale2Desktop = 18; // desktop dot2 (dot1 stays small at restScale1)
 
   // === Wiggle phase (0 - 3% of timeline) ===
   masterTl.to([dot1, dot2], { offsetX: isMobile ? 15 : 30, duration: 0.015 }, 0);
@@ -762,7 +763,7 @@ export function initDotsAnimation() {
     ellipseOrbit,
     { angle: 540 },
     {
-      angle: 2000,
+      angle: 4500,
       duration: 0.8,
       ease: "none",
     },
@@ -776,10 +777,13 @@ export function initDotsAnimation() {
     0.08,
   );
 
-  // === Process section scale - dots grow larger once transition settles (mobile only) ===
+  // === Process section scale - dots diverge in size ===
   if (isMobile) {
     masterTl.to(dot1, { scale: processScale1, duration: 0.06, ease: "power1.inOut" }, 0.20);
     masterTl.to(dot2, { scale: processScale2, duration: 0.06, ease: "power1.inOut" }, 0.20);
+  } else {
+    // Desktop: dot2 grows large while dot1 stays at rest — dramatic size ratio
+    masterTl.to(dot2, { scale: processScale2Desktop, duration: 0.06, ease: "power1.inOut" }, 0.20);
   }
 
   // === Breathing size changes - organic pulsing ===
