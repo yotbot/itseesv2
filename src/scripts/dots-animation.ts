@@ -643,7 +643,6 @@ export function initDotsAnimation() {
   const getBaseSize = () => Math.min(window.innerWidth * 0.80, 896) * 0.027;
 
   // Match initial dot color to the logo text so dots blend seamlessly at rest.
-  // In light mode this is #141414, in dark mode #e8d8c9.
   const themeTextColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--color-text").trim();
   if (themeTextColor) colors.dark = themeTextColor;
@@ -828,23 +827,6 @@ export function initDotsAnimation() {
     ScrollTrigger.refresh();
   };
   window.addEventListener("resize", resizeHandler);
-}
-
-// Update initial dot color when theme changes (light ↔ dark).
-// Dots in their initial state (not yet animated to green/orange) will update instantly.
-export function updateThemeColor() {
-  const textColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-text").trim();
-  if (!textColor) return;
-
-  const prevColor = colors.dark;
-  colors.dark = textColor;
-
-  // Re-color any dot still showing the previous initial color
-  dots.forEach((dot) => {
-    if (dot.color === prevColor) dot.color = textColor;
-  });
-  render();
 }
 
 // Export for external use

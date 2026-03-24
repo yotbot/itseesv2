@@ -54,12 +54,12 @@ const minimapItems = stages.flatMap((stage, i) => [
 ---
 
 <!-- Minimap ruler - fixed right side, visible only during process section -->
-<div id="process-ruler" class="fixed right-6 md:right-8 top-1/2 -translate-y-1/2 z-30 pointer-events-none bg-itsees-bg/40 backdrop-blur-sm rounded-xl px-2 py-2 flex flex-col items-center gap-[8px]">
+<div id="process-ruler" class="fixed right-6 md:right-8 top-1/2 -translate-y-1/2 z-30 pointer-events-none bg-itsees-bg/40 backdrop-blur-sm rounded-xl px-3 py-3 flex flex-col items-center gap-[10px]">
   {minimapItems.map((item) => (
     <div class="minimap-item flex justify-center" style="opacity: 0.2;">
       {item.type === 'number'
-        ? <span class="text-[9px] font-mono leading-none text-itsees-text">{item.label}</span>
-        : <div class="minimap-line h-[2px] w-3 bg-itsees-text rounded-full origin-center"></div>
+        ? <span class="text-[11px] font-mono leading-none text-itsees-text">{item.label}</span>
+        : <div class="minimap-line h-[2px] w-4 bg-itsees-text rounded-full origin-center"></div>
       }
     </div>
   ))}
@@ -79,7 +79,7 @@ const minimapItems = stages.flatMap((stage, i) => [
               <span class="block font-mono font-bold text-black leading-none tracking-tighter select-none" style="font-size: clamp(5rem, 14vw, 12rem);">
                 {stage.number}
               </span>
-              <span class="block h-[2px] w-7 bg-itsees-orange -mt-3 mb-5"></span>
+              <span class="block h-[2px] w-7 bg-itsees-orange mt-2 md:-mt-3 mb-5"></span>
             </div>
             <h3 class="text-3xl md:text-4xl font-bold text-itsees-text leading-tight">
               {stage.title}
@@ -176,6 +176,6 @@ const minimapItems = stages.flatMap((stage, i) => [
   }
 
   .process-card {
-    @apply bg-transparent rounded-xl border border-black/[0.07];
+    @apply bg-transparent rounded-xl border-2 border-black;
   }
 </style>

@@ -11,16 +11,6 @@
   --color-text: #212121;
 }
 
-:root.dark {
-  --color-bg: #212121;
-  --color-bg-card: rgba(255, 255, 255, 0.05);
-  --color-text: #eae5df;
-}
-
-/* Dark mode minimap ruler */
-html.dark #process-ruler {
-  background: rgba(234, 229, 223, 0.07);
-}
 
 @layer base {
   @font-face {
