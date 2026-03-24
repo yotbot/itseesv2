@@ -4,13 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        'itsees-dark': '#141414',
+        'itsees-dark': '#212121',
         'itsees-bg': 'var(--color-bg)',
+        'itsees-bg-card': 'var(--color-bg-card)',
         'itsees-text': 'var(--color-text)',
-        'itsees-blue': '#4b607f',
-        'itsees-blue-light': '#6a82a8',
-        'itsees-orange': '#f3701e',
-        'itsees-green': '#4b607f',
+        'itsees-blue': '#a862fe',
+        'itsees-blue-light': '#c49afe',
+        'itsees-orange': '#f86e2f',
+        'itsees-green': '#a862fe',
       },
       fontFamily: {
         sans: ['Geist', 'system-ui', 'sans-serif'],
