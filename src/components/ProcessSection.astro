@@ -65,7 +65,12 @@ const minimapItems = stages.flatMap((stage, i) => [
   ))}
 </div>
 
-<section id="process" class="relative bg-itsees-bg">
+<section id="process" class="relative bg-itsees-bg pt-32 md:pt-48">
+  <div class="section-container mb-20 md:mb-28 relative z-20">
+    <h2 class="process-title font-bold text-itsees-text leading-none tracking-tighter" style="font-size: clamp(3rem, 11vw, 11rem);">
+      The process
+    </h2>
+  </div>
   {stages.map((stage) => (
     <div
       id={`stage-${stage.id}`}
@@ -104,6 +109,18 @@ const minimapItems = stages.flatMap((stage, i) => [
   gsap.registerPlugin(ScrollTrigger);
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Animate process title from left
+    gsap.from('.process-title', {
+      opacity: 0,
+      x: -60,
+      scrollTrigger: {
+        trigger: '.process-title',
+        start: 'top 85%',
+        end: 'top 55%',
+        scrub: 1,
+      },
+    });
+
     // Animate each stage card on scroll
     gsap.utils.toArray('.stage-card').forEach((card, index) => {
       gsap.from(card as Element, {
