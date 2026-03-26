@@ -1,14 +1,17 @@
 ---
+import LanguageToggle from '../components/LanguageToggle.astro';
+
 interface Props {
   title: string;
   description?: string;
+  lang?: 'nl' | 'en';
 }
 
-const { title, description = "itsees - Full-service web development company" } = Astro.props;
+const { title, description = "itsees - Full-service web development company", lang = 'nl' } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +24,7 @@ const { title, description = "itsees - Full-service web development company" } =
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   </head>
   <body>
+    <LanguageToggle lang={lang} />
     <slot />
   </body>
 </html>

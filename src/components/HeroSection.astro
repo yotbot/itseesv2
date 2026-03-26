@@ -1,5 +1,9 @@
 ---
 // HeroSection.astro - Large centered "itsees" logo with dots as eyes
+interface Props {
+  scroll: string;
+}
+const { scroll } = Astro.props;
 ---
 
 <section id="hero" class="relative min-h-[150svh] md:min-h-[170svh] bg-itsees-bg">
@@ -32,7 +36,7 @@
 
   <!-- Scroll indicator -->
   <div class="scroll-indicator fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-itsees-text/50 z-20">
-    <span class="text-sm tracking-wider uppercase">Scroll</span>
+    <span class="text-sm tracking-wider uppercase">{scroll}</span>
     <div class="scroll-line w-px h-12 animate-pulse"></div>
   </div>
 </section>

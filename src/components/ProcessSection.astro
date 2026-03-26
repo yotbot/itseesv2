@@ -1,47 +1,21 @@
 ---
 // ProcessSection.astro - 5 stages with alternating left/right layout
-const stages = [
-  {
-    id: 'concept',
-    number: '01',
-    title: 'Concept',
-    description: 'We explore your vision together',
-    details: 'Every great project starts with understanding. We dive deep into your goals, audience, and aspirations to craft a clear roadmap for success.',
-    align: 'left',
-  },
-  {
-    id: 'design',
-    number: '02',
-    title: 'Design',
-    description: 'Ideas take shape, excitement builds',
-    details: 'Wireframes become mockups, mockups become prototypes. We iterate with you until every pixel feels right and the experience flows naturally.',
-    align: 'right',
-  },
-  {
-    id: 'build',
-    number: '03',
-    title: 'Build',
-    description: 'Technical craft meets creative vision',
-    details: 'Our engineers bring designs to life with clean, performant code. We use modern frameworks and best practices to ensure your site is fast, accessible, and maintainable.',
-    align: 'left',
-  },
-  {
-    id: 'host',
-    number: '04',
-    title: 'Host',
-    description: 'Launch with confidence and speed',
-    details: 'We deploy to battle-tested infrastructure with global CDN, automatic scaling, and rock-solid security. Your site loads fast from anywhere in the world.',
-    align: 'right',
-  },
-  {
-    id: 'maintain',
-    number: '05',
-    title: 'Maintain',
-    description: 'Ongoing support, reliable partnership',
-    details: 'Launch is just the beginning. We monitor, optimize, and evolve your digital presence as your business grows. You have a dedicated team in your corner.',
-    align: 'left',
-  },
+interface Props {
+  title: string;
+  stages: { title: string; description: string; details: string }[];
+}
+
+const { title: sectionTitle, stages: stageTexts } = Astro.props;
+
+const stagesMeta = [
+  { id: 'concept', number: '01', align: 'left' },
+  { id: 'design',  number: '02', align: 'right' },
+  { id: 'build',   number: '03', align: 'left' },
+  { id: 'host',    number: '04', align: 'right' },
+  { id: 'maintain',number: '05', align: 'left' },
 ];
+
+const stages = stagesMeta.map((meta, i) => ({ ...meta, ...stageTexts[i] }));
 
 // Minimap items: each stage number followed by 4 tick lines (except the last stage)
 const LINES_PER_GAP = 4;
@@ -68,7 +42,7 @@ const minimapItems = stages.flatMap((stage, i) => [
 <section id="process" class="relative bg-itsees-bg pt-32 md:pt-48">
   <div class="section-container mb-20 md:mb-28 relative z-20">
     <h2 class="process-title font-bold text-itsees-text leading-none tracking-tighter" style="font-size: clamp(3rem, 11vw, 11rem);">
-      The process
+      {sectionTitle}
     </h2>
   </div>
   {stages.map((stage) => (

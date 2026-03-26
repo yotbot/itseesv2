@@ -1,0 +1,29 @@
+---
+interface Props {
+  lang: 'nl' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<div class="fixed top-5 right-5 z-50 flex items-center gap-1.5 font-mono text-xs tracking-widest uppercase select-none">
+  <a
+    href="/"
+    class={lang === 'nl'
+      ? 'text-itsees-text font-bold pointer-events-none'
+      : 'text-itsees-text/40 hover:text-itsees-text/70 transition-colors'}
+    aria-current={lang === 'nl' ? 'page' : undefined}
+  >
+    NL
+  </a>
+  <span class="text-itsees-text/20">·</span>
+  <a
+    href="/en/"
+    class={lang === 'en'
+      ? 'text-itsees-text font-bold pointer-events-none'
+      : 'text-itsees-text/40 hover:text-itsees-text/70 transition-colors'}
+    aria-current={lang === 'en' ? 'page' : undefined}
+  >
+    EN
+  </a>
+</div>

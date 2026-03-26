@@ -1,20 +1,29 @@
 ---
 // FooterSection.astro - Contact CTA and copyright
+interface Props {
+  headingLine1: string;
+  headingLine2: string;
+  subtext: string;
+  cta: string;
+  copyright: string;
+}
+
+const { headingLine1, headingLine2, subtext, cta, copyright } = Astro.props;
 ---
 
 <footer id="contact" class="relative min-h-[50vh] bg-itsees-bg flex items-center justify-center pt-80 pb-20">
   <div class="section-container text-center relative z-20">
     <h2 class="font-bold text-itsees-text leading-none tracking-tighter mb-6" style="font-size: clamp(3rem, 9vw, 9rem);">
-      Ready to build<br />something?
+      {headingLine1}<br />{headingLine2}
     </h2>
     <p class="text-xs uppercase tracking-widest text-itsees-text/80 mb-8 max-w-xs mx-auto">
-      Let's turn your vision into reality. Reach out and let's start the conversation.
+      {subtext}
     </p>
     <a
       href="mailto:info@itsees.nl"
       class="cta-btn inline-flex items-center gap-2 pl-8 pr-8 py-4 bg-itsees-orange text-itsees-dark rounded-full text-lg font-medium border-2 border-black"
     >
-      Get in touch
+      {cta}
       <svg class="cta-arrow w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
       </svg>
@@ -22,7 +31,7 @@
 
     <div class="mt-20 pt-8 border-t border-itsees-text/10">
       <p class="text-itsees-text/40 text-sm">
-        &copy; {new Date().getFullYear()} itsees. All rights reserved.
+        &copy; {new Date().getFullYear()} itsees. {copyright}
       </p>
     </div>
   </div>
