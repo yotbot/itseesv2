@@ -73,7 +73,7 @@ export const nl: Translations = {
     ],
   },
   footer: {
-    headingLine1: "Klaar om iets",
+    headingLine1: "Klaar om",
     headingLine2: "te bouwen?",
     subtext:
       "Laten we jouw visie omzetten naar een website die werkt. Neem contact op en we kunnen snel aan de slag.",
